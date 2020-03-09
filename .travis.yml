@@ -2,5 +2,4 @@ language: python
 
 python: 2.7
 
-scripts: echo foo
-
+script: pytest
