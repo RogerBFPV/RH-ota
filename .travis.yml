@@ -4,5 +4,3 @@ python: 2.7
 
 scripts: echo foo
 
-after_success:
-   - codecov
