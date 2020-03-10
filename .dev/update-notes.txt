@@ -1,3 +1,5 @@
+# use arrows, pg up and pg down or space bar to navigate
+
 
 		UPDATE NOTES:
 
@@ -12,7 +14,7 @@ allows stopping server and coming back to ota program
 Checking internet connection before performing server update
 or installation - prevents errors and config loss
 
-___________________________________________________________
+______________________________________________________________
 
 2.2.8n
 
@@ -53,11 +55,12 @@ descriptions in the software
 Visual improvements:
 menus and descriptions
 
-___________________________________________________________
+______________________________________________________________
 
 2.2.5 and higher
 
-If you performed an update from 2.2.4 version or previous and you want to use custom pins as reset pins:
+If you performed an update from 2.2.4 version or previous 
+and you want to use custom pins as reset pins:
 
 Change line in updater-config.json file so it looks like:
 
@@ -80,3 +83,6 @@ And than edit lines 60 to 67 in nodes_update.py file.
 nano nodes_update.py
 
 Happy flyin'!
+______________________________________________________________
+
+# EXIT by hitting "q" 
