@@ -3,8 +3,11 @@
 
 		UPDATE NOTES:
 
+
 2.2.9d
+
 Added configuration wizard - no need of manual 'json' editing.
+
 
 2.2.9c
 
