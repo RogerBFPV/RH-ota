@@ -42,7 +42,7 @@ logoTop()
 def confCheck():
 	global conf_now_FLAG
 	if os.path.exists("./updater-config.json") == True:
-		print("\t\tLooks that you already have software configured")
+		print("\t\tLooks that you already have software configured.")
 		valid_options = ['y', 'yes', 'n', 'no']
 		while True:
 			cont_conf = raw_input("\n\t\tOverwrite and continue anyway? [yes/no] ").strip()
@@ -55,11 +55,15 @@ def confCheck():
 			pass
 		if cont_conf == 'n' or cont_conf == 'no':
 			conf_now_FLAG =0
+	else:
+		conf_now_FLAG =1
 confCheck()
 
 if conf_now_FLAG ==1:
 	while True:
-		print("\n\nPlease enter your configuration data. May be changed later.\n") 
+		print("""
+Please type your configuration data. It can be modified later.
+Default values are not automatically applied. Type them if needed.\n""") 
 		os.system("rm .wizarded-updater-config.json >/dev/null 2>&1")
 		name = raw_input("\nWhat is your user name on Raspberry Pi? [default: pi]\t")
 		os.system("echo '{' | tee -a "+homedir+"/RH-ota/.wizarded-updater-config.json >/dev/null 2>&1")
