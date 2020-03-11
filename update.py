@@ -6,9 +6,10 @@ import os
 import platform
 import sys
 import json
-import subprocess
+from modules import clearTheScreen, bcolors, logoTop, image
+#import subprocess
 
-updater_version = '2.2.9d'  ### version of THIS program - has nothing to do with the RH version
+updater_version = '2.2.9e'  ### version of THIS program - has nothing to do with the RH version
                             ### it reffers to the API level of newest contained nodes firmware 
                             ### third number reffers to actual verion of the updater itself
 
@@ -51,46 +52,11 @@ if linux_testing == True:
 else:
 	user = data['pi_user']
 
-class bcolors:
-	HEADER = '\033[95m'
-	ORANGE = '\033[33m'
-	BLUE = '\033[94m'
-	GREEN = '\033[92m'
-	YELLOW = '\033[93m'
-	RED = '\033[91m'
-	ENDC = '\033[0m'
-	BOLD = '\033[1m'
-	UNDERLINE = '\033[4m'
-
-def clearTheScreen():
-	sleep(0.05)
-	if platform.system() == "Windows":
-		os.system("cls")
-	else:
-		os.system("clear")
-	sleep(0.05)
-
-def image():
-	with open('image.txt', 'r') as file:
-		f = file.read()
-		print(f)
-
-def logoTop():
-	print("""\n	
-	#######################################################################
-	###                                                                 ###
-	###\t\t\t"""+bcolors.ORANGE+"""     """+bcolors.BOLD+"""RotorHazard        """+bcolors.ENDC+"""\t\t    ###
-	###                                                                 ###
-	###                     """+bcolors.BOLD+"""OTA Updater and Manager"""+bcolors.ENDC+"""                     ###
-	###                                                                 ###
-	#######################################################################""")
-	if (linux_testing == True):
-		print("\t\t\t  Linux PC version\t\n")
+def configCheck():
 	if os.path.exists("./updater-config.json") == False:
 		print("""\t\tLooks that you haven't set up config file yet.
 		Please read about configuration process - point 5
 		and next enter configuration wizard - point 6.""")
-	sleep(0.05)
 
 def compatibility():               ### adds compatibility and fixes with previous versions
 	os.system("python ./prev_comp.py")
@@ -105,7 +71,6 @@ def first ():
 	image()
 	print("\t\t\t\t Updater version: "+str(updater_version))
 	sleep(1.1)
-first()
 
 def avrDude():
 	clearTheScreen()
@@ -286,10 +251,10 @@ def selfUpdater():
 def featuresMenu():
 	clearTheScreen()
 	logoTop()
-	print("\n\n\n\t\t\t\t"+bcolors.RED+bcolors.BOLD+bcolors.UNDERLINE+"FEATURES MENU\n"+bcolors.ENDC)
+	print("\n\n\t\t\t\t"+bcolors.RED+bcolors.BOLD+bcolors.UNDERLINE+"FEATURES MENU\n"+bcolors.ENDC)
 	print("			"+bcolors.BLUE+bcolors.BOLD+"1 - Install avrdude\n"+bcolors.ENDC)
 	print("			"+bcolors.BLUE+bcolors.BOLD+"2 - Enable serial protocol\n"+bcolors.ENDC)
-	print("			"+bcolors.BOLD+"3 - Access Point and Internet - new\n"+bcolors.ENDC)
+	print("			"+bcolors.BOLD+"3 - Access Point and Internet\n"+bcolors.ENDC)
 	print("			"+bcolors.BOLD+"4 - Useful aliases\n"+bcolors.ENDC)
 	print("			"+bcolors.BOLD+"5 - Self updater \n"+bcolors.ENDC)
 	print("			"+bcolors.YELLOW+bcolors.BOLD+"e - Exit to main menu"+bcolors.ENDC)
@@ -332,7 +297,7 @@ def firstTime():
 	> """+bcolors.BLUE+"""\"stable\""""+bcolors.ENDC+bcolors.BOLD+""" - last stable release (can be from before few days or few months)\n
 	> """+bcolors.BLUE+"""\"beta\""""+bcolors.ENDC+bcolors.BOLD+"""   - last 'beta' release (usually has about few weeks, quite stable)\n
 	> """+bcolors.BLUE+"""\"master\""""+bcolors.ENDC+bcolors.BOLD+""" - absolutely newest features implemented (even if not well tested)"""+bcolors.ENDC+"""\n""")
-		print("\n\n\t'f' - first page'"+bcolors.GREEN+"\t'u' - see update notes'"+bcolors.ENDC+bcolors.YELLOW+"\t\t'b' - back to menu"+bcolors.ENDC+"\n\n")
+		print("\n\n\t'f' - first page'"+bcolors.GREEN+"\t'u' - update notes'"+bcolors.ENDC+bcolors.YELLOW+"\t'b' - back to menu"+bcolors.ENDC+"\n\n")
 		selection=str(raw_input(""))
 		if selection=='f':
 			firstPage()
@@ -353,7 +318,7 @@ def firstTime():
 	and in how_to folder - look for PDF file.\n\n 
 	If you found any bug - please report via GitHub or Facebook.\n\n
 	\t\tEnjoy!\n\t\t\t\t\t\t\t\tSzafran\n """+bcolors.ENDC)
-		print("\n\t"+bcolors.GREEN+"'s' - second page'"+bcolors.ENDC+"\t'u' - see update notes'"+bcolors.YELLOW+"\t\t'b' - back to menu"+bcolors.ENDC+"\n\n")
+		print("\n\t"+bcolors.GREEN+"'s' - second page'"+bcolors.ENDC+"\t'u' - update notes'"+bcolors.YELLOW+"\t'b' - back to menu"+bcolors.ENDC+"\n\n")
 		selection=str(raw_input(""))
 		if selection=='s':
 			secondPage()
@@ -369,7 +334,7 @@ def end():
 		clearTheScreen()
 		print("\n\n")
 		image()
-		print("\t\t\t\tHappy flyin'!\n")
+		print("\t\t\t\t   Happy flyin'!\n")
 		sleep(1.3)
 		clearTheScreen()
 		sys.exit()
@@ -377,13 +342,14 @@ def end():
 def mainMenu():
 	clearTheScreen()
 	logoTop()
-	print("\n\n\n\t\t\t\t"+bcolors.RED+bcolors.BOLD+bcolors.UNDERLINE+"MAIN MENU\n"+bcolors.ENDC)
-	print("			"+bcolors.BLUE+bcolors.BOLD+"1 - Server software installation and update\n"+bcolors.ENDC)
+	configCheck()
+	print("\n\n\t\t\t\t"+bcolors.RED+bcolors.BOLD+bcolors.UNDERLINE+"MAIN MENU\n"+bcolors.ENDC)
+	print("			"+bcolors.BLUE+bcolors.BOLD+"1 - RH server - install and update\n"+bcolors.ENDC)
 	print("			"+bcolors.BLUE+bcolors.BOLD+"2 - Nodes flash and update\n"+bcolors.ENDC)
 	print("			"+bcolors.BOLD+"3 - Start the server now\n"+bcolors.ENDC)
 	print("			"+bcolors.BOLD+"4 - Additional features\n"+bcolors.ENDC)
-	print("			"+bcolors.BOLD+"5 - Info + first time here - READ!\n"+bcolors.ENDC)
-	print("			"+bcolors.BOLD+"6 - Enter configuration wizard\n"+bcolors.ENDC)
+	print("			"+bcolors.BOLD+"5 - Info + first time here\n"+bcolors.ENDC)
+	print("			"+bcolors.BOLD+"6 - Configuration wizard\n"+bcolors.ENDC)
 	print("			"+bcolors.YELLOW+bcolors.BOLD+"e - Exit"+bcolors.ENDC)
 	# valid_options = ['1', '2', '3', '4', '5', 'e']  ### another option for error catching
 	# while True:
@@ -413,4 +379,7 @@ def mainMenu():
 		os.system("python ./nodes_update_dev.py")   ### opens nodes updating file
 	else:
 		mainMenu()
-mainMenu()
+
+if __name__ == "__main__":
+	first()
+	mainMenu()

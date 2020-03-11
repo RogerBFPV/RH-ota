@@ -23,7 +23,7 @@ def internetCheck():
 	global internet_FLAG
 	#os.system("python net_check.py")
 	os.system("timeout 2s sh "+myhomedir+"/RH-ota/net_check.sh > /dev/null 2>&1")
-	sleep(2.2)
+	sleep(2.05)
 	if os.path.exists("./index.html") == True:
 		internet_FLAG=1
 	else:
@@ -108,14 +108,16 @@ def main():
 			os.system("cp ~/RH-ota/updater-config.json ~/.ota_markers/updater-config.json")
 		if no_pdf_update == False:
 			print("Update will contain PDF file - may be changed in config file.\n")
-			os.system("sudo rm -r ~/RH-ota")
+			os.system("sudo rm -rf ~/RH-ota*")
+			os.system("rm tempota.zip > /dev/null  > /dev/null 2>&1")
 			os.system("wget https://codeload.github.com/szafranski/RH-ota/zip/master -O tempota.zip")
 			os.system("unzip tempota.zip")
 			os.system("rm tempota.zip")
 			os.system("mv RH-ota-* RH-ota")
 		else:
 			print("Update won't contain PDF file - may be changed in config file.\n")
-			os.system("sudo rm -r ~/RH-ota")
+			os.system("sudo rm -rf ~/RH-ota*")
+			os.system("rm tempota.zip > /dev/null  > /dev/null 2>&1")
 			os.system("wget https://codeload.github.com/szafranski/RH-ota/zip/no_pdf_included -O tempota.zip")
 			os.system("unzip tempota.zip")
 			os.system("rm tempota.zip")
