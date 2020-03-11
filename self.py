@@ -2,6 +2,7 @@ from time import sleep
 import os
 import sys
 import json
+import time
 
 os.system("pwd >.my_pwd")
 with open('.my_pwd', 'r') as file:
@@ -21,13 +22,17 @@ else:
 def internetCheck():
 	print("\nPlease wait - checking internet connection state...\n")
 	global internet_FLAG
-	#os.system("python net_check.py")
-	os.system("timeout 2s sh "+myhomedir+"/RH-ota/net_check.sh > /dev/null 2>&1")
-	sleep(2.2)
-	if os.path.exists("./index.html") == True:
-		internet_FLAG=1
-	else:
-		internet_FLAG=0
+	before_millis = int(round(time.time() * 1000))
+	os.system("timeout 3s sh "+myhomedir+"/RH-ota/net_check.sh > /dev/null 2>&1")
+	while True:
+		now_millis = int(round(time.time() * 1000))
+		time_passed = (now_millis - before_millis)
+		if os.path.exists("./index.html") == True:
+			internet_FLAG=1
+			break
+		elif (time_passed > 3100):
+			internet_FLAG=0
+			break
 	os.system("rm "+myhomedir+"/RH-ota/index.html > /dev/null 2>&1")
 	os.system("rm "+myhomedir+"/RH-ota/wget-log* > /dev/null 2>&1")
 	os.system("rm "+myhomedir+"/index.html > /dev/null 2>&1")
@@ -108,14 +113,16 @@ def main():
 			os.system("cp ~/RH-ota/updater-config.json ~/.ota_markers/updater-config.json")
 		if no_pdf_update == False:
 			print("Update will contain PDF file - may be changed in config file.\n")
-			os.system("sudo rm -r ~/RH-ota")
+			os.system("sudo rm -rf ~/RH-ota*")
+			os.system("rm tempota.zip > /dev/null  > /dev/null 2>&1")
 			os.system("wget https://codeload.github.com/szafranski/RH-ota/zip/master -O tempota.zip")
 			os.system("unzip tempota.zip")
 			os.system("rm tempota.zip")
 			os.system("mv RH-ota-* RH-ota")
 		else:
 			print("Update won't contain PDF file - may be changed in config file.\n")
-			os.system("sudo rm -r ~/RH-ota")
+			os.system("sudo rm -rf ~/RH-ota*")
+			os.system("rm tempota.zip > /dev/null  > /dev/null 2>&1")
 			os.system("wget https://codeload.github.com/szafranski/RH-ota/zip/no_pdf_included -O tempota.zip")
 			os.system("unzip tempota.zip")
 			os.system("rm tempota.zip")

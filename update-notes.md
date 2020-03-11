@@ -1,7 +1,15 @@
 # use arrows, pg up and pg down or space bar to navigate
+# hit 'q' to exit now
 
 
 		UPDATE NOTES:
+		^^^^^^^^^^^^
+
+2.2.9e
+
+Added functions and modules
+Beter configuration handling
+Faster internet checker
 
 2.2.9c
 

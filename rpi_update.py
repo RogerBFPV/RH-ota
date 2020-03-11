@@ -3,6 +3,8 @@ import os
 import sys
 import platform
 import json
+from modules import clearTheScreen, bcolors, logoTop, image
+import time
 
 if os.path.exists("./updater-config.json") == True:
 	with open('updater-config.json') as config_file:
@@ -32,40 +34,24 @@ if preffered_RH_version == 'stable':
 if preffered_RH_version =='custom':
 	server_version = 'X.X.X'           ### paste custom version number here if you want to declare it manually
 
-class bcolors:
-	HEADER = '\033[95m'
-	BLUE = '\033[94m'
-	GREEN = '\033[92m'
-	YELLOW = '\033[93m'
-	RED = '\033[91m'
-	ENDC = '\033[0m'
-	BOLD = '\033[1m'
-	UNDERLINE = '\033[4m'
-
 def internetCheck():
 	print("\nPlease wait - checking internet connection state...\n")
 	global internet_FLAG
-	os.system("timeout 2s sh /home/"+user+"/RH-ota/net_check.sh > /dev/null 2>&1")
-	sleep(2.2)
-	if os.path.exists("./index.html") == True:
-		internet_FLAG=1
-	else:
-		internet_FLAG=0
+	before_millis = int(round(time.time() * 1000))
+	os.system("timeout 3s sh /home/"+user+"/RH-ota/net_check.sh > /dev/null 2>&1")
+	while True:
+		now_millis = int(round(time.time() * 1000))
+		time_passed = (now_millis - before_millis)
+		if os.path.exists("./index.html") == True:
+			internet_FLAG=1
+			break
+		elif (time_passed > 3100):
+			internet_FLAG=0
+			break
 	os.system("rm /home/"+user+"/RH-ota/index.html > /dev/null 2>&1")
 	os.system("rm /home/"+user+"/RH-ota/wget-log* > /dev/null 2>&1")
-
-def clearTheScreen():
-	sleep(0.05)
-	if platform.system() == "Windows":
-		os.system("cls")
-	else:
-		os.system("clear")
-	sleep(0.05)
-
-def image():
-	with open('image.txt', 'r') as file:
-		f = file.read()
-		print(f)
+	os.system("rm /home/"+user+"/index.html > /dev/null 2>&1")
+	os.system("rm /home/"+user+"/wget-log* > /dev/null 2>&1")
 
 def first ():
 	clearTheScreen()
@@ -252,12 +238,12 @@ def update():
 			os.system("sudo chmod 777 -R /home/"+user+"/.old_RotorHazard.old")
 			os.system("sudo chmod 777 -R /home/"+user+"/backup_RH_data")
 			os.system("sudo chmod 777 -R /home/"+user+"/.ota_markers")
-			os.system("cp /home/"+user+"/RotorHazard.old/src/server/config.json /home/"+user+"/RotorHazard/src/server/")
+			os.system("cp /home/"+user+"/RotorHazard.old/src/server/config.json /home/"+user+"/RotorHazard/src/server/ >/dev/null 2>&1 &")
 			os.system("cp -r /home/"+user+"/RotorHazard.old/src/server/static/image /home/"+user+"/backup_RH_data")
 			os.system("cp -r /home/"+user+"/RotorHazard.old/src/server/static/image /home/"+user+"/RotorHazard/src/server/static")
-			os.system("cp /home/"+user+"/RotorHazard.old/src/server/config.json /home/"+user+"/backup_RH_data")
-			os.system("cp /home/"+user+"/RotorHazard.old/src/server/database.db /home/"+user+"/RotorHazard/src/server/")
-			os.system("cp /home/"+user+"/RotorHazard.old/src/server/database.db /home/"+user+"/backup_RH_data")
+			os.system("cp /home/"+user+"/RotorHazard.old/src/server/config.json /home/"+user+"/backup_RH_data >/dev/null 2>&1 &")
+			os.system("cp /home/"+user+"/RotorHazard.old/src/server/database.db /home/"+user+"/RotorHazard/src/server/ >/dev/null 2>&1 &")
+			os.system("cp /home/"+user+"/RotorHazard.old/src/server/database.db /home/"+user+"/backup_RH_data >/dev/null 2>&1 &")
 			os.chdir("/home/"+user+"/RotorHazard/src/server")
 			os.system("sudo -H pip install --upgrade --no-cache-dir -r requirements.txt")
 			print("""\n\n\t
@@ -282,7 +268,7 @@ def main():
 	Remember to perform self-updating of this software, before updating server software.\n\t
 	If you prefer to use newest possible beta version - change the source accordingly.\n\t
 	Also make sure that you are logged as user '"""+bcolors.BLUE+user+bcolors.ENDC+bcolors.BOLD+"""'. \n\n\t
-	You can change those by editing file 'updater-config.json' in text editor - like 'nano'.
+	You can change those in configuration wizard in Main Menu.
 	\n\tServer installed right now:"""+bcolors.GREEN+""" """+server_version_name+""""""+bcolors.RED+"""
 	\n\t\t\t\t\t\t\t\t\tEnjoy!\n\n\t\t"""+bcolors.ENDC+"""
 	\t 'i' - Install software from skratch\n\t\t
@@ -311,7 +297,7 @@ def main():
 				sys.exit()
 			else:
 				main()
-		else :
+		else:
 			conf_allowed = True
 			installation()
 	if selection =='u':	
@@ -321,6 +307,6 @@ def main():
 		image()
 		clearTheScreen()
 		sys.exit()
-	else :
+	else:
 		main()
 main()

@@ -3,6 +3,7 @@ import os
 import sys
 import platform
 import json
+from modules import clearTheScreen, bcolors, logoTop
 
 if os.path.exists("./updater-config.json") == True:
 	with open('updater-config.json') as config_file:
@@ -39,7 +40,7 @@ if preffered_RH_version == 'custom':
 
 nodes_number = data['nodes_number']
 
-if pins_assignment == 'PCB':
+if pins_assignment == 'PCB' or pins_assignment == 'pcb':
 	reset_1 = 12    ## node 1   # default 12
 	reset_2 = 16    ## node 2   # default 16
 	reset_3 = 4     ## node 3   # default 4
@@ -76,25 +77,6 @@ if linux_testing == True:
 	user = data['debug_user']
 else:
 	user = data['pi_user']
-
-class bcolors:
-	HEADER = '\033[95m'
-	ORANGE = '\033[33m'
-	BLUE = '\033[94m'
-	GREEN = '\033[92m'
-	YELLOW = '\033[93m'
-	RED = '\033[91m'
-	ENDC = '\033[0m'
-	BOLD = '\033[1m'
-	UNDERLINE = '\033[4m'
-
-def clearTheScreen():
-	sleep(0.05)
-	if platform.system() == "Windows":
-		os.system("cls")
-	else:
-		os.system("clear")
-	sleep(0.05)
 
 if (linux_testing == False): 
 	import RPi.GPIO as GPIO
@@ -205,51 +187,37 @@ if (linux_testing == True):
 		print("\n\t\t\t\t\t Linux - PC\n\n")
 		sleep(0.3)
 	def nodeOneReset():
-		print("\n\n\t\t\t/home/"+user+"/RH-ota/firmware/"+firmware_version+"/node_"+str(X)+".hex")
+		print("\n\n\t\t\t/home/"+user+"/RH-ota/firmware/"+firmware_version+"/node_1.hex")
 		print("\n\t\t\t\t\t Linux - PC\n\n")
 		sleep(0.3)
 	def nodeTwoReset():
-		print("\n\n\t\t\t/home/"+user+"/RH-ota/firmware/"+firmware_version+"/node_"+str(X)+".hex")
+		print("\n\n\t\t\t/home/"+user+"/RH-ota/firmware/"+firmware_version+"/node_2.hex")
 		print("\n\t\t\t\t\t Linux - PC\n\n")
 		sleep(0.3)
 	def nodeThreeReset():
-		print("\n\n\t\t\t/home/"+user+"/RH-ota/firmware/"+firmware_version+"/node_"+str(X)+".hex")
+		print("\n\n\t\t\t/home/"+user+"/RH-ota/firmware/"+firmware_version+"/node_3.hex")
 		print("\n\t\t\t\t\t Linux - PC\n\n")
 		sleep(0.3)
 	def nodeFourReset():
-		print("\n\n\t\t\t/home/"+user+"/RH-ota/firmware/"+firmware_version+"/node_"+str(X)+".hex")
+		print("\n\n\t\t\t/home/"+user+"/RH-ota/firmware/"+firmware_version+"/node_4.hex")
 		print("\n\t\t\t\t\t Linux - PC\n\n")
 		sleep(0.3)
 	def nodeFiveReset():
-		print("\n\n\t\t\t/home/"+user+"/RH-ota/firmware/"+firmware_version+"/node_"+str(X)+".hex")
+		print("\n\n\t\t\t/home/"+user+"/RH-ota/firmware/"+firmware_version+"/node_5.hex")
 		print("\n\t\t\t\t\t Linux - PC\n\n")
 		sleep(0.3)
 	def nodeSixReset():
-		print("\n\n\t\t\t/home/"+user+"/RH-ota/firmware/"+firmware_version+"/node_"+str(X)+".hex")
+		print("\n\n\t\t\t/home/"+user+"/RH-ota/firmware/"+firmware_version+"/node_6.hex")
 		print("\n\t\t\t\t\t Linux - PC\n\n")
 		sleep(0.3)
 	def nodeSevenReset():
-		print("\n\n\t\t\t/home/"+user+"/RH-ota/firmware/"+firmware_version+"/node_"+str(X)+".hex")
+		print("\n\n\t\t\t/home/"+user+"/RH-ota/firmware/"+firmware_version+"/node_7.hex")
 		print("\n\t\t\t\t\t Linux - PC\n\n")
 		sleep(0.3)
 	def nodeEightReset():
-		print("\n\n\t\t\t/home/"+user+"/RH-ota/firmware/"+firmware_version+"/node_"+str(X)+".hex")
+		print("\n\n\t\t\t/home/"+user+"/RH-ota/firmware/"+firmware_version+"/node_8.hex")
 		print("\n\t\t\t\t\t Linux - PC\n\n")
 		sleep(0.3)
-
-def logoTop():
-	print("""\n	
-	#######################################################################
-	###                                                                 ###
-	###\t\t\t"""+bcolors.ORANGE+"""     """+bcolors.BOLD+"""RotorHazard        """+bcolors.ENDC+"""\t\t    ###
-	###                                                                 ###
-	###                     """+bcolors.BOLD+"""OTA Updater and Manager"""+bcolors.ENDC+"""                     ###
-	###                                                                 ###
-	#######################################################################""")
-	if (linux_testing == True):
-		print("\t\t\t  Linux PC version\t")
-	if os.path.exists("./updater-config.json") == False:
-		print("\t\t\t    Looks that you haven't set up config file yet!")
 
 def logoUpdate():
 	print("""
