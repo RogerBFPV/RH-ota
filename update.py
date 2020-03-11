@@ -97,8 +97,6 @@ def compatibility():               ### adds compatibility and fixes with previou
 #			rldals.communicate()
 
 def first ():
-	if linux_testing == False:
-		os.system("sudo systemctl stop rotorhazard >/dev/null 2>&1 &")
 	compatibility()
 	clearTheScreen()
 	print("\n\n")
@@ -228,6 +226,7 @@ def aliasesMenu():
 
 def selfUpdater():
 	def addUpdater():
+		print("\nPermissions required so 'zip' and 'unzip' program can be downloaded.")
 		os.system("sudo apt install zip unzip")
 		os.system("""echo 'alias updateupdater=\"cd ~ && cp ~/RH-ota/self.py ~/.ota_markers/self.py && python ~/.ota_markers/self.py \"  # part of self updater' | tee -a ~/.bashrc""")
 		os.system("""echo 'alias uu=\"cd ~ && cp ~/RH-ota/self.py ~/.ota_markers/self.py && python ~/.ota_markers/self.py \"  # part of self updater' | tee -a ~/.bashrc""")
@@ -329,7 +328,8 @@ def firstTime():
 	> """+bcolors.BLUE+"""\"stable\""""+bcolors.ENDC+bcolors.BOLD+""" - last stable release (can be from before few days or few months)\n
 	> """+bcolors.BLUE+"""\"beta\""""+bcolors.ENDC+bcolors.BOLD+"""   - last 'beta' release (usually has about few weeks, quite stable)\n
 	> """+bcolors.BLUE+"""\"master\""""+bcolors.ENDC+bcolors.BOLD+""" - absolutely newest features implemented (even if not well tested)"""+bcolors.ENDC+"""\n""")
-		selection=str(raw_input("\n\t'f' - first page'"+bcolors.GREEN+"\t'u' - see update notes'"+bcolors.ENDC+bcolors.YELLOW+"\t\t'b' - back to menu"+bcolors.ENDC+"\n\n"))
+		print("\n\n\t'f' - first page'"+bcolors.GREEN+"\t'u' - see update notes'"+bcolors.ENDC+bcolors.YELLOW+"\t\t'b' - back to menu"+bcolors.ENDC+"\n\n")
+		selection=str(raw_input(""))
 		if selection=='f':
 			firstPage()
 		if selection=='b':
@@ -340,15 +340,17 @@ def firstTime():
 			secondPage()
 	def firstPage():
 		clearTheScreen()
-		print(bcolors.BOLD+"""\n\n\n
+		print(bcolors.BOLD+"""\n\n
 	You can use all implemened features, but if you want to be able to program\n
 	Arduino-based nodes - enter Features menu and begin with first 2 points.\n\n
 	Also remember about setting up config file - check second page.  \n\n
 	This program has ability to perform 'self-updates'. Check "Features menu".\n\n
 	More info here: https://www.instructables.com/id/RotorHazard-Updater/\n
 	and in how_to folder - look for PDF file.\n\n 
-	\t\n\t\t\tEnjoy!\n\t\t\t\t\t\t\t\tSzafran\n """+bcolors.ENDC)
-		selection=str(raw_input("\n\t"+bcolors.GREEN+"'s' - second page'"+bcolors.ENDC+"\t'u' - see update notes'"+bcolors.YELLOW+"\t\t'b' - back to menu"+bcolors.ENDC+"\n\n"))
+	If you found any bug - please report via GitHub or Facebook.\n\n
+	\t\tEnjoy!\n\t\t\t\t\t\t\t\tSzafran\n """+bcolors.ENDC)
+		print("\n\t"+bcolors.GREEN+"'s' - second page'"+bcolors.ENDC+"\t'u' - see update notes'"+bcolors.YELLOW+"\t\t'b' - back to menu"+bcolors.ENDC+"\n\n")
+		selection=str(raw_input(""))
 		if selection=='s':
 			secondPage()
 		if selection=='u':
@@ -372,7 +374,7 @@ def mainMenu():
 	clearTheScreen()
 	logoTop()
 	print("\n\n\n\t\t\t\t"+bcolors.RED+bcolors.BOLD+bcolors.UNDERLINE+"MAIN MENU\n"+bcolors.ENDC)
-	print("			"+bcolors.BLUE+bcolors.BOLD+"1 - Server software installation and update\n	"+bcolors.ENDC)
+	print("			"+bcolors.BLUE+bcolors.BOLD+"1 - Server software installation and update\n"+bcolors.ENDC)
 	print("			"+bcolors.BLUE+bcolors.BOLD+"2 - Nodes flash and update\n"+bcolors.ENDC)
 	print("			"+bcolors.BOLD+"3 - Start the server now\n"+bcolors.ENDC)
 	print("			"+bcolors.BOLD+"4 - Additional features\n"+bcolors.ENDC)
