@@ -3,7 +3,7 @@ import os
 import sys
 import platform
 import json
-from modules import clearTheScreen, bcolors, logoTop, image
+from modules import clearTheScreen, bcolors, logoTop, image, check_if_string_in_file
 import time
 
 if os.path.exists("./updater-config.json") == True:
@@ -192,8 +192,9 @@ def update():
 		sleep(0.2)
 		clearTheScreen()
 		if os.path.exists("/home/"+user+"/RotorHazard") == False:
-			print("""\n\t """+bcolors.BOLD+"""Looks like you don't have RotorHazard server software installed for now. \n\t\t
-		 If so please install your server software first or you won't be able to use the timer."""+bcolors.ENDC+""" """)
+			print("""\n\t """+bcolors.BOLD+"""
+		Looks like you don't have RotorHazard server software installed for now. \n\t\t
+		If so please install your server software first or you won't be able to use the timer."""+bcolors.ENDC+""" """)
 			selection=str(raw_input("""\n\n\t\t"""+bcolors.GREEN+""" 'i' - Install the software - recommended """+ bcolors.ENDC+
 			"""\n\n\t\t 'u' - Force update procedure   \n\n\t\t """+bcolors.YELLOW+"""'a' - Abort both  \n\n """+bcolors.ENDC+""" """))
 			if selection == 'i':
@@ -202,7 +203,6 @@ def update():
 			if selection == 'u':
 				update()
 			if selection == 'a':
-				sleep(0.5)
 				clearTheScreen()
 				sys.exit()
 			else:
@@ -293,7 +293,7 @@ def main():
 			if selection == 'a':
 				clearTheScreen()
 				image()
-				clearTheScreen()
+				sleep(0.5)
 				sys.exit()
 			else:
 				main()
@@ -305,7 +305,7 @@ def main():
 	if selection =='a':	
 		clearTheScreen()
 		image()
-		clearTheScreen()
+		sleep(0.5)
 		sys.exit()
 	else:
 		main()
