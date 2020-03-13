@@ -6,6 +6,11 @@
 		^^^^^^^^^^^^
 
 
+2.2.9g
+
+Internet checking, server booting and RH configuration 
+moved into one script - . command used
+
 2.2.9f
 
 Added configuration wizard for RotorHazard server
@@ -37,7 +42,7 @@ allows stopping server and coming back to ota program
 BIG: Checking internet connection before performing server update
 or installation - prevents errors and config loss
 
-______________________________________________________________
+_________________________________________________________________
 
 2.2.8n
 
@@ -78,7 +83,8 @@ descriptions in the software
 Visual improvements:
 menus and descriptions
 
-______________________________________________________________
+_________________________________________________________________
+
 
 2.2.5 and higher
 
@@ -106,6 +112,8 @@ And than edit lines 60 to 67 in nodes_update.py file.
 nano nodes_update.py
 
 Happy flyin'!
-______________________________________________________________
+
+_________________________________________________________________
+
 
 # EXIT by hitting "q" 

@@ -1,4 +1,4 @@
-
+![OTA Logo](ota_logo.png)
 
 # Easy mange and update your RotorHazard installation. 
 
