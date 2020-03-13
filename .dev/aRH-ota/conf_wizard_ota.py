@@ -13,10 +13,10 @@ logoTop()
 def confCheck():
 	global conf_now_FLAG
 	if os.path.exists("./updater-config.json") == True:
-		print("\t\tLooks that you already have software configured.")
+		print("\t\tLooks that you have OTA software already configured.")
 		valid_options = ['y', 'yes', 'n', 'no']
 		while True:
-			cont_conf = raw_input("\n\t\tOverwrite and continue anyway? [yes/no] ").strip()
+			cont_conf = raw_input("\n\t\tOverwrite and continue anyway? [yes/no]\t").strip()
 			if cont_conf in valid_options:
 				break
 			else:
@@ -41,11 +41,11 @@ Default values are not automatically applied. Type them if needed.\n""")
 		os.system("echo '	\"pi_user\" : \""+name+"\",' | tee -a "+homedir+"/RH-ota/.wizarded-updater-config.json >/dev/null 2>&1")
 		while True:
 			version = raw_input("\nWhat RotorHazard version will you use? ["+bcolors.UNDERLINE+"stable"+bcolors.ENDC+" | beta | master]\t\t")
-			os.system("echo '	\"RH_version\" : \""+version+"\",' | tee -a "+homedir+"/RH-ota/.wizarded-updater-config.json >/dev/null 2>&1")
 			version_valid_options = ['master','stable','beta']
 			if not version in version_valid_options:
 				print("\nPlease enter correct value!")
 			else:
+				os.system("echo '	\"RH_version\" : \""+version+"\",' | tee -a "+homedir+"/RH-ota/.wizarded-updater-config.json >/dev/null 2>&1")
 				break
 		debug_user = raw_input("\nWhat is you user name on debugging OS? [default: racer]\t\t\t")
 		os.system("echo '	\"debug_user\" : \""+debug_user+"\",' | tee -a "+homedir+"/RH-ota/.wizarded-updater-config.json >/dev/null 2>&1")
@@ -53,23 +53,43 @@ Default values are not automatically applied. Type them if needed.\n""")
 		os.system("echo '	\"country\" : \""+code+"\",' | tee -a "+homedir+"/RH-ota/.wizarded-updater-config.json >/dev/null 2>&1")
 		while True:
 			nodes = raw_input("\nHow many nodes will you use in your system? [min: 0/1 | max: 8]\t\t")
-			os.system("echo '	\"nodes_number\" : "+nodes+",' | tee -a "+homedir+"/RH-ota/.wizarded-updater-config.json >/dev/null 2>&1")
 			if (nodes.isdigit()==False) or (int(nodes) >8):
 				print("\nPlease enter correct value!")
 			else:
+				os.system("echo '	\"nodes_number\" : "+nodes+",' | tee -a "+homedir+"/RH-ota/.wizarded-updater-config.json >/dev/null 2>&1")
 				break
-		debug_mode = raw_input("\nWill you use debug mode? [0 - no | 1 - yes; default: 0]\t\t\t")
-		os.system("echo '	\"debug_mode\" : "+debug_mode+",' | tee -a "+homedir+"/RH-ota/.wizarded-updater-config.json >/dev/null 2>&1")
+		while True:
+			debug_mode = raw_input("\nWill you use debug mode? [yes/no | default: no]\t\t\t\t")
+			debug_mode_allowed_values = ['yes','no','1','0']
+			if not debug_mode in debug_mode_allowed_values:
+				print("\nPlease enter correct value!")
+			else:
+				if debug_mode == 'yes' or debug_mode == '1':
+					debug_mode_val = '1'
+				if debug_mode == 'no' or debug_mode == '0':
+					debug_mode_val = '0'
+				os.system("echo '	\"updates_without_pdf\" : "+debug_mode_val+"' | tee -a "+homedir+"/RH-ota/.wizarded-updater-config.json >/dev/null 2>&1")
+				break
 		while True:
 			pins_assign = raw_input("\nPins assignment? [default | custom | PCB; default: default]\t\t")
-			os.system("echo '	\"pins_assignment\" : \""+pins_assign+"\",' | tee -a "+homedir+"/RH-ota/.wizarded-updater-config.json >/dev/null 2>&1")
 			pins_valid_options = ['default','PCB','pcb','custom']
 			if not pins_assign in pins_valid_options:
 				print("\nPlease enter correct value!")
 			else:
+				os.system("echo '	\"pins_assignment\" : \""+pins_assign+"\",' | tee -a "+homedir+"/RH-ota/.wizarded-updater-config.json >/dev/null 2>&1")
 				break
-		no_pdf = raw_input("\nUpdates without PDF? [1 - yes | 0 - no; default: 1]\t\t\t")
-		os.system("echo '	\"updates_without_pdf\" : "+no_pdf+"' | tee -a "+homedir+"/RH-ota/.wizarded-updater-config.json >/dev/null 2>&1")
+		while True:
+			no_pdf = raw_input("\nUpdates without PDF? [yes/no | default: yes]\t\t\t\t")
+			no_pdf_allowed_values = ['yes','no','1','0']
+			if not no_pdf in no_pdf_allowed_values:
+				print("\nPlease enter correct value!")
+			else:
+				if no_pdf == 'yes' or no_pdf == '1':
+					no_pdf_val = '1'
+				if no_pdf == 'no' or no_pdf == '0':
+					no_pdf_val = '0'
+				os.system("echo '	\"updates_without_pdf\" : "+no_pdf_val+"' | tee -a "+homedir+"/RH-ota/.wizarded-updater-config.json >/dev/null 2>&1")
+				break
 		os.system("echo '}' | tee -a "+homedir+"/RH-ota/.wizarded-updater-config.json >/dev/null 2>&1")
 
 		print("""\n\n\t\t\t"""+bcolors.UNDERLINE+"""CONFIGURATION"""+bcolors.ENDC+""":\n\t
@@ -93,13 +113,13 @@ Default values are not automatically applied. Type them if needed.\n""")
 
 		if selection == 'y' or selection ==  'yes':
 			os.system("mv .wizarded-updater-config.json updater-config.json")
-			print("Configuration saved.")
+			print("Configuration saved.\n")
 			sleep(0.5)
 			break
 		if selection == 'n' or selection == 'no':
 			continue
 		if selection == 'abort':
-			print("Configuration aborted.")
+			print("Configuration aborted.\n")
 			sleep(0.5)
 			break
 else:
