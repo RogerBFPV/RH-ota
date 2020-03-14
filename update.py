@@ -217,12 +217,10 @@ def selfUpdater():
 		if selection=='b':
 			featuresMenu()
 		if selection=='uu':
-<<<<<<< HEAD
-=======
-			os.chdir("/home/"+user)
->>>>>>> master
-			os.system("cp ~/RH-ota/open_scripts.sh ~/.ota_markers/open_scripts.sh")
-			os.system(". ~/.ota_markers/open_scripts.sh; updater_from_ota")
+			#os.chdir("/home/"+user)
+			#os.system("cp ~/RH-ota/open_scripts.sh ~/.ota_markers/open_scripts.sh")
+			#os.system(". ~/.ota_markers/open_scripts.sh; updater_from_ota")
+			os.system(". ./open_scripts.sh; updater_from_ota")
 		if selection=='f':
 			addUpdater()
 		else :
