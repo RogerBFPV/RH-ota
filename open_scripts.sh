@@ -23,6 +23,22 @@ timeout 10s wget www.google.com
 #exit
 }
 
+updater_from_ota()
+{
+sudo killall python
+printf "\n\nUpdating process will be started soon...\n\n"
+cd ~ 
+cp ~/RH-ota/self.py ~/.ota_markers/self.py 
+#timeout 10 
+python ~/.ota_markers/self.py
+#sudo killall bash
+#exit
+#kill -2 $(pidof python self.py)
+#sleep 2
+#sudo kill -2  $(pidof python update.py) 
+#killall 
+}
+
 # aliases_reload () 
 # {
 	# . ~/.bashrc
@@ -33,4 +49,3 @@ timeout 10s wget www.google.com
 # scripts like those ensures that files are being executed in right directory but main program
 # istelf can be continued from previous directory after such a script was executed or stopped
 # eg. after hittind Ctrl+C after server was started etc.
-
