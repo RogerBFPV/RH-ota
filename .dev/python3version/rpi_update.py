@@ -112,7 +112,7 @@ def endUpdate():
 		's' - start the server now\n"""+bcolors.YELLOW+"""
 		'e' - exit now\n"""+bcolors.ENDC)
 	def endMenu():
-		selection=str(raw_input(""))
+		selection=str(input(""))
 		if selection =='r':	
 			os.system("sudo reboot")
 		if selection =='e':	
@@ -137,7 +137,7 @@ def endInstallation():
 		's' - start the server now\n"""+bcolors.YELLOW+"""
 		'e' - exit now\n"""+bcolors.ENDC)
 	def endMenu():
-		selection=str(raw_input(""))
+		selection=str(input(""))
 		if selection =='r':	
 			os.system("sudo reboot")
 		if selection =='e':	
@@ -253,7 +253,7 @@ def update():
 		'i' - Install the software - recommended """+ bcolors.ENDC+"""\n\t\t 
 		'u' - Force update procedure\n\t\t """+bcolors.YELLOW+"""
 		'a' - Abort both  \n\n """+bcolors.ENDC+""" """)
-			selection=str(raw_input())
+			selection=str(input())
 			if selection == 'i':
 				conf_allowed = True
 				installation()
@@ -343,7 +343,7 @@ def main():
 	print("""
 		'u' - Update existing installation\n"""+bcolors.YELLOW+""" 
 		'e' - Exit to Main Menu \n"""+bcolors.ENDC)
-	selection=str(raw_input(""))
+	selection=str(input(""))
 	if selection =='c':
 		if serv_installed_FLAG == True:
 			os.system(". ./open_scripts.sh; configuraton_start")
@@ -364,7 +364,7 @@ def main():
 		'i' - Force installation without sys. config.\n
 		'c' - Force installation and sys. config.\n """+bcolors.YELLOW+"""
 		'a' - Abort both  \n """+bcolors.ENDC+""" """)
-			selection=str(raw_input())
+			selection=str(input())
 			if selection == 'u':
 				update()
 			if selection == 'i':
@@ -373,7 +373,7 @@ def main():
 			if selection == 'c':
 				confirm_valid_options = ['y', 'yes','n','no','abort','a']
 				while True:
-					confirm = raw_input("\n\t\tAre you sure? [yes/abort]\t").strip()
+					confirm = input("\n\t\tAre you sure? [yes/abort]\t").strip()
 					if confirm in confirm_valid_options:
 						break
 					else:
