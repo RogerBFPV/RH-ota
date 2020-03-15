@@ -38,7 +38,7 @@ def internetCheck():
 		if os.path.exists("./index.html") == True:
 			internet_FLAG=1
 			break
-		elif (time_passed > 3100):
+		elif (time_passed > 10100):
 			internet_FLAG=0
 			break
 	os.system("rm "+myhomedir+"/RH-ota/index.html > /dev/null 2>&1")
@@ -103,13 +103,16 @@ def newVersionCheck():
 def main():
 	internetCheck()
 	if internet_FLAG==0:
-		print("Looks like you don't have internet connection. Update canceled.")
+		print("\nLooks like you don't have internet connection. Update canceled.")
+		sleep(2)
 	else:
-		print("Internet connection - OK")
+		print("\nInternet connection - OK")
+		sleep(1.5)
 		os.system("sudo chmod -R 777 ~/.ota_markers > /dev/null 2>&1")   ### resolves compatibility issues
 		os.system("sudo chmod -R 777 ~/RH-ota > /dev/null 2>&1")         ### resolves compatibility issues
 		oldVersionCheck()
 		print("\n\n\n\t Please wait: updating process from version "+old_version_name+"\n\n")
+		sleep(2)
 		if config_file_exists == True:
 			os.system("cp ~/RH-ota/updater-config.json ~/.ota_markers/updater-config.json")
 		if no_pdf_update == False:
@@ -132,7 +135,7 @@ def main():
 			os.system("cp ~/.ota_markers/updater-config.json ~/RH-ota/updater-config.json")
 		newVersionCheck()
 		print("\n\n\n\t RotorHazard OTA Manager updated to version "+new_version_name+"\n\t\tYou may check update-notes.\n\n")
-		sleep(0.3)
+		sleep(1)
 		os.system("sudo chmod -R 777 ~/.ota_markers > /dev/null 2>&1")   ### resolves compatibility issues
 		os.system("sudo chmod -R 777 ~/RH-ota > /dev/null 2>&1")         ### resolves compatibility issues
 main()

@@ -1,6 +1,6 @@
+![OTA Logo](/resources/ota_logo.png)
 
-
-# Easy mange and update your RotorHazard installation. 
+# Easy mange and update your [RotorHazard](https://github.com/RotorHazard/RotorHazard) installation. 
 
 </br>
 Additional features like nodes flashing are included.
@@ -9,7 +9,7 @@ Additional features like nodes flashing are included.
 If you want all hardware functionalities - visit: [Instructables page](https://www.instructables.com/id/RotorHazard-Updater/)
 or check the [RotorHazard-Updater.pdf](/how_to/RotorHazard-Updater.pdf).
 
-You may also read [update notes](update-notes.md) - new features are present.
+You may also read [update notes](/docs/update-notes.txt) - new features are present.
 </br></br>
 #### Commands to download the repo onto Raspberry Pi (or Linux):
 	cd ~
@@ -28,4 +28,4 @@ You may also read [update notes](update-notes.md) - new features are present.
 </br>
 
 >If you want detailed description of this software and actions that are being performed during operations,</br>
->you may read [developer notes](dev-notes.txt).
+>you may read [developer notes](/docs/dev-notes.txt). You may want to check [license file](/docs/LICENSE.txt) as well.

@@ -41,14 +41,14 @@ def internetCheck():
 	print("\nPlease wait - checking internet connection state...\n")
 	global internet_FLAG
 	before_millis = int(round(time.time() * 1000))
-	os.system(". /home/"+user+"/RH-ota/open_scripts.sh; net_check")
+	os.system(". /home/"+user+"/RH-ota/open_scripts.sh; net_check ")
 	while True:
 		now_millis = int(round(time.time() * 1000))
 		time_passed = (now_millis - before_millis)
 		if os.path.exists("./index.html") == True:
 			internet_FLAG=1
 			break
-		elif (time_passed > 3100):
+		elif (time_passed > 10100):
 			internet_FLAG=0
 			break
 	os.system("rm /home/"+user+"/RH-ota/index.html > /dev/null 2>&1")
@@ -79,11 +79,14 @@ def serverChecker():
 		serv_installed_FLAG = False
 
 def configChecker():
+	global config_FLAG
 	global config_soft
 	if os.path.exists("/home/"+user+"/RotorHazard/src/server/config.json") == True:
 		config_soft = bcolors.GREEN+"""configured"""+bcolors.ENDC
+		config_FLAG = True
 	else:
 		config_soft = bcolors.YELLOW+bcolors.UNDERLINE+"""not configured"""+bcolors.ENDC
+		config_FLAG = False
 
 def sysConf():
 	os.system("sudo systemctl enable ssh")
@@ -98,11 +101,16 @@ def sysConf():
 	os.system("sed -i 's/^blacklist spi-bcm2708/#blacklist spi-bcm2708/' /etc/modprobe.d/raspi-blacklist.conf")
 	os.system("sed -i 's/^blacklist i2c-bcm2708/#blacklist i2c-bcm2708/' /etc/modprobe.d/raspi-blacklist.conf")
 
-def end():
-	print("\n\n\n\t\t"+bcolors.GREEN+"Type 'c' to configure the server now - recommended"+bcolors.ENDC+"\n")
-	print("\t\t"+bcolors.GREEN+"Type 'r' for reboot - recommended after configuring"+bcolors.ENDC+"\n")
-	print("\t\tType 's' to start the server now\n")
-	print("\t\t"+bcolors.YELLOW+"Type 'e' for exit\n"+bcolors.ENDC)
+def endUpdate():
+	print("\n\n")
+	if config_FLAG == False and serv_installed_FLAG == True:
+		print(bcolors.GREEN+"""\t\t'c' - configure the server now"""+bcolors.ENDC)
+	else:
+		print("""\t\t'c' - Reconfigure RotorHazard server""")
+	print("""
+		'r' - reboot - recommended when configured\n
+		's' - start the server now\n"""+bcolors.YELLOW+"""
+		'e' - exit now\n"""+bcolors.ENDC)
 	def endMenu():
 		selection=str(raw_input(""))
 		if selection =='r':	
@@ -110,8 +118,33 @@ def end():
 		if selection =='e':	
 			sys.exit()
 		if selection =='c':	
-			os.system(". ./open_scripts.sh; configuraton_start")
-			#os.system("cd /home/"+user+"/RH-ota/ && python conf_wizard_rh.py")
+			os.system(". /home/"+user+"/RH-ota/open_scripts.sh; configuraton_start")
+			endUpdate()
+		if selection =='s':	
+			clearTheScreen()
+			os.chdir("/home/"+user+"/RH-ota")
+			os.system(". ./open_scripts.sh; server_start")
+			#os.system("sh ./server_start.sh")
+		else: 
+			end()
+	endMenu()	
+	clearTheScreen()
+
+def endInstallation():
+	print("""\n\n"""+bcolors.GREEN+"""
+		'c' - configure the server now - recommended\n
+		'r' - reboot - recommended after configuring"""+bcolors.ENDC+"""\n
+		's' - start the server now\n"""+bcolors.YELLOW+"""
+		'e' - exit now\n"""+bcolors.ENDC)
+	def endMenu():
+		selection=str(raw_input(""))
+		if selection =='r':	
+			os.system("sudo reboot")
+		if selection =='e':	
+			sys.exit()
+		if selection =='c':	
+			os.system(". /home/"+user+"/RH-ota/open_scripts.sh; configuraton_start")
+			endUpdate()
 		if selection =='s':	
 			clearTheScreen()
 			os.chdir("/home/"+user+"/RH-ota")
@@ -127,12 +160,13 @@ def installation():
 		os.system("sudo systemctl stop rotorhazard >/dev/null 2>&1 &")
 	internetCheck()
 	if internet_FLAG==0:
-		print("Looks like you don't have internet connection. Installation canceled.")
+		print("\nLooks like you don't have internet connection. Installation canceled.")
+		sleep(2)
 	else:
-		print("Internet connection - OK")
-		sleep(0.2)
+		print("\nInternet connection - OK")
+		sleep(2)
 		clearTheScreen()
-		print("\n\t\t "+bcolors.BOLD+"Installation process started - please wait..."+bcolors.ENDC+" \n")
+		print("\n\t"+bcolors.BOLD+"Installation process started - please wait..."+bcolors.ENDC+" \n")
 		os.system("sudo apt-get update && sudo apt-get upgrade -y")
 		os.system("sudo apt autoremove -y")
 		os.system("sudo apt install wget ntp libjpeg-dev i2c-tools python-dev libffi-dev python-smbus build-essential python-pip git scons swig zip -y")
@@ -193,22 +227,23 @@ def installation():
 		print("""\n\n\t
 		##############################################
 		##                                          ##
-		##         """+bcolors.BOLD+"""Installation completed!"""+bcolors.ENDC+"""          ##
+		##         """+bcolors.BOLD+bcolors.GREEN+"""Installation completed"""+bcolors.ENDC+"""           ##
 		##                                          ##
 		############################################## \n\n
-		After rebooting please check by typing 'sudo raspi-config' \n
-		if I2C, SPI and SSH protocols are active.\n""")
-		end()
+	After rebooting please check by typing 'sudo raspi-config' \n
+	if I2C, SPI and SSH protocols are active.\n""")
+		endInstallation()
 
 def update():
 	if linux_testing == False:
 		os.system("sudo systemctl stop rotorhazard >/dev/null 2>&1 &")
 	internetCheck()
 	if internet_FLAG==0:
-		print("Looks like you don't have internet connection. Update canceled.")
+		print("\nLooks like you don't have internet connection. Update canceled.")
+		sleep(2)
 	else:
-		print("Internet connection - OK")
-		sleep(0.2)
+		print("\nInternet connection - OK")
+		sleep(2)
 		clearTheScreen()
 		if os.path.exists("/home/"+user+"/RotorHazard") == False:
 			print("""\n\t """+bcolors.BOLD+"""
@@ -231,7 +266,7 @@ def update():
 				main()
 		else :
 			clearTheScreen()
-			print("\n\t\t "+bcolors.BOLD+"Updating existing installation - please wait..."+bcolors.ENDC+" \n")
+			print("\n\t"+bcolors.BOLD+"Updating existing installation - please wait..."+bcolors.ENDC+" \n")
 			os.system("sudo -H python -m pip install --upgrade pip ")
 			os.system("sudo -H pip install pillow ")
 			os.system("sudo apt-get install libjpeg-dev ntp -y")
@@ -269,14 +304,15 @@ def update():
 			os.chdir("/home/"+user+"/RotorHazard/src/server")
 			os.system("sudo -H pip install --upgrade --no-cache-dir -r requirements.txt")
 			print("""\n\n\t
-			##############################################
-			##                                          ##
-			##            """+bcolors.BOLD+"""Update completed!"""+bcolors.ENDC+"""             ##
-			##                                          ##
-			##############################################""")
-			end()
+		##############################################
+		##                                          ##
+		##            """+bcolors.BOLD+bcolors.GREEN+"""Update completed"""+bcolors.ENDC+"""              ##
+		##                                          ##
+		##############################################""")
+			endUpdate()
 
 def main():
+	global config_FLAG
 	global serv_installed_FLAG 
 	global conf_allowed
 	global config_soft
@@ -285,21 +321,28 @@ def main():
 	serverChecker()
 	configChecker()
 	sleep(0.1)
-	print("""\n\n\t\t"""+bcolors.RED+bcolors.BOLD+"""AUTOMATIC UPDATE AND INSTALLATION OF ROTORHAZARD RACING TIMER SOFTWARE\n\n\t"""+bcolors.ENDC
-	+bcolors.BOLD+"""This script can automatically install and update RotorHazard software on your Raspberry. 
-	All additional software depedancies and libraries also will be installed or updated.
-	Your current database, config file and custom bitmaps will stay on the updated software.
-	Source of the software will be '"""+bcolors.BLUE+server_version+bcolors.ENDC+bcolors.BOLD+"""' version from the RotorHazard repository. 
-	Remember to perform self-updating of this software, before updating server software.
+	print("""\n\n\t"""+bcolors.RED+bcolors.BOLD+"""AUTOMATIC UPDATE AND INSTALLATION OF ROTORHAZARD RACING TIMER SOFTWARE\n\n\t"""+bcolors.ENDC
+	+bcolors.BOLD+"""You can automatically install and update RotorHazard timing software. 
+	Additional depedancies and libraries also will be installed or updated.
+	Current database, configs and custom bitmaps will stay on their place.
+	Source of the software is set to '"""+bcolors.BLUE+server_version+bcolors.ENDC+bcolors.BOLD+"""' version from the RH repository. 
+	Perform self-updating of this software, before updating server software.
 	Also make sure that you are logged as user '"""+bcolors.BLUE+user+bcolors.ENDC+bcolors.BOLD+"""'. \n
 	You can change those in configuration wizard in Main Menu.\n
 	Server installed right now: """+server_version_name+bcolors.BOLD+"""
-	RotorHazard configuration state: """+config_soft+bcolors.RED+bcolors.BOLD+"""
-	\n\t\t\t\t\t\t\t\tEnjoy!\n\n\t\t"""+bcolors.ENDC+"""
-		'c' - Configure RotorHazard server\n
-		'i' - Install software from skratch\n
+	RotorHazard configuration state: """+config_soft+bcolors.RED+bcolors.BOLD+"""\n
+								Enjoy!\n\n"""+bcolors.ENDC)
+	if config_FLAG == False and serv_installed_FLAG == True:
+		print(bcolors.GREEN+"""\t\t'c' - Configure RotorHazard server\n"""+bcolors.ENDC)
+	else:
+		print("""\t\t'c' - Reconfigure RotorHazard server\n""")
+	if serv_installed_FLAG == False:
+		print(bcolors.GREEN+"""\t\t'i' - Install software from skratch"""+bcolors.ENDC)
+	else:
+		print("""\t\t'i' - Install software from skratch""")
+	print("""
 		'u' - Update existing installation\n"""+bcolors.YELLOW+""" 
-		'a' - Abort \n"""+bcolors.ENDC+""" """)
+		'e' - Exit to Main Menu \n"""+bcolors.ENDC)
 	selection=str(raw_input(""))
 	if selection =='c':
 		if serv_installed_FLAG == True:
@@ -327,9 +370,19 @@ def main():
 			if selection == 'i':
 				conf_allowed = False
 				installation()
-			if selection == 's':
-				conf_allowed = True
-				installation()
+			if selection == 'c':
+				confirm_valid_options = ['y', 'yes','n','no','abort','a']
+				while True:
+					confirm = raw_input("\n\t\tAre you sure? [yes/abort]\t").strip()
+					if confirm in confirm_valid_options:
+						break
+					else:
+						print("too big fingers :( wrong command. try again! :)")
+				if confirm == 'y' or confirm ==  'yes':
+					conf_allowed = True
+					installation()
+				if confirm in ['n','no','abort','a']:
+					pass
 			if selection == 'a':
 				clearTheScreen()
 				image()
@@ -342,7 +395,7 @@ def main():
 			installation()
 	if selection =='u':	
 		update()
-	if selection =='a':	
+	if selection =='e':	
 		clearTheScreen()
 		os.chdir("/home/"+user+"/RH-ota")
 		image()

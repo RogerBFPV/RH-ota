@@ -3,9 +3,9 @@ import os
 import platform
 import sys
 import json
-from modules import clearTheScreen, bcolors, logoTop, image, check_if_string_in_file
+from modules import clearTheScreen, bcolors, logoTop, image, check_if_string_in_file, ota_image
 
-updater_version = '2.2.9g'  ### version of THIS program - has nothing to do with the RH version
+updater_version = '2.2.9h'  ### version of THIS program - has nothing to do with the RH version
                             ### it reffers to the API level of newest contained nodes firmware 
                             ### third number reffers to actual verion of the updater itself
 
@@ -43,7 +43,7 @@ else:
 
 def configCheck():
 	if os.path.exists("./updater-config.json") == False:
-		print("""\t\tLooks that you haven't set up config file yet.
+		print("""\n\t\tLooks that you haven't set up config file yet.
 		Please read about configuration process - point 5
 		and next enter configuration wizard - point 6.""")
 
@@ -58,7 +58,7 @@ def first ():
 	clearTheScreen()
 	print("\n\n")
 	image()
-	print("\t\t\t\t Updater version: "+str(updater_version))
+	print("\t\t\t\t "+bcolors.BOLD+"Updater version: "+str(updater_version)+bcolors.ENDC)
 	sleep(1.1)
 
 def avrDude():
@@ -143,7 +143,7 @@ def aliasesMenu():
 		print("\n\n\t\t	Aliases added successfully")
 		#os.system(". ~/.bashrc && alias*")
 		#os.system("cd /home/"+user+"/RH-ota && . ./open_scripts.sh; aliases_reload")
-		sleep(2)
+		sleep(3)
 		featuresMenu()
 	print("""\n\n\t\t
 	Aliases in Linux act like shortcuts or referances to another commands. 
@@ -152,23 +152,24 @@ def aliasesMenu():
 	you can just type 'ss' (server start) etc. Aliases can be modified and added 
 	anytime you want. You just have to open '~./bashrc' file in text editor 
 	- like 'nano'. After that you have reboot or type 'source ~/.bashrc'. \n
-	"""+bcolors.BOLD+"""Alias			Command					  What it does	\n
-	ss  	 -->  cd ~/RotorH(...)server && python server.py # starts the RH-server\t
-	cfg  	 -->  nano ~/RotorHazard/src/server/config.json	 # opens config.json file\t
-	rh   	 -->  cd ~/RotorHazard/src/server   		 # goes to server file location\t
-	py   	 -->  python  					 # pure laziness\t
-	sts   	 -->  sudo systemctl stop rotorhazard 		 # stops RH service if was started\t
-	otadir   -->  cd ~/RH-ota   				 # goes to main server file location\t
-	ota   	 -->  cd ~/RH-ota && python update.py  		 # opens updating soft\t
-	als   	 -->  nano ~/.bashrc   				 # opens this file\t
-	rld   	 -->  source ~/.bashrc   			 # reloads aliases file \t
-	rcfg   	 -->  sudo raspi-config   			 # open raspberry's configs\t
-	gitota 	 -->  git clone https://github.com/sza(...) 	 # clones ota repo\t
-	otacfg   -->  nano ~/RH-ota/updater-config.json 	 # opens updater conf. file\t
-	otacpcfg -->  cd (...)  cp distr (...) config.json 	 # copies ota cfg.\t
-	home	 -->  cd ~ 	 				 # go homedir (without ~ sign)\t\t\n
+	"""+bcolors.BOLD+"""
+				Alias			What it does	\n
+				ss  	 -->	starts the RotorHazard server
+				cfg  	 -->	opens RH config.json file
+				rh   	 -->	goes to server file directory
+				py   	 -->	insted of 'python' - pure laziness
+				sts   	 -->	stops RH service if was started
+				otadir   -->	goes to RH server file directory
+				ota   	 -->	opens this software
+				als   	 -->	opens the file that containes aliases
+				rld   	 -->	reloads aliases file 
+				rcfg   	 -->	opens raspberry's configuration 
+				gitota 	 -->	clones OTA repository
+				otacfg   -->	opens updater conf. file
+				otacpcfg -->	copies ota conf. file.
+				home	 -->	go to the home directory (without ~ sign)\n
 	"""+bcolors.ENDC+"""
-		\tDo you want to use above aliases in your system?\n\t
+		\tDo you want to use above aliases in your system?\n
 		\tReboot should be performed after adding those""")
 	selection=str(raw_input("\n\t\t\t\t"+bcolors.YELLOW+"Press 'y' for yes or 'a' for abort"+bcolors.ENDC+"\n"))
 	if selection == 'y':
@@ -190,60 +191,75 @@ def aliasesMenu():
 
 def selfUpdater():
 	def addUpdater():
-		print("\nPermissions required so 'zip' and 'unzip' program can be downloaded.")
-		os.system("sudo apt install zip unzip")
-		os.system("""echo 'alias updateupdater=\"cd ~ && cp ~/RH-ota/self.py ~/.ota_markers/self.py && python ~/.ota_markers/self.py \"  # part of self updater' | tee -a ~/.bashrc""")
-		os.system("""echo 'alias uu=\"cd ~ && cp ~/RH-ota/self.py ~/.ota_markers/self.py && python ~/.ota_markers/self.py \"  # part of self updater' | tee -a ~/.bashrc""")
-	clearTheScreen()
-	logoTop()
-	if os.path.exists("/home/"+user+"/.ota_markers/.updater_self") == True:
-		print("""\n\n """+bcolors.BOLD+"""
-	If you want to update this program and download new firmware, \n
-	prepared for Arduino nodes - so you can next flash them \n\t\t
-	- you have to type 'updateupdater' or 'uu' in the terminal window.\n\n\t\t
-	Version of the updater is related to """+bcolors.BLUE+"""nodes firmware API number"""+bcolors.ENDC+bcolors.BOLD+""",\n\t\t
-	so you allways know what firmware version updater contains.\n\t\t
-	For example "2.2.5c" contains nodes firmware with "API level 22" etc.\n\t\t
-	Be sure that you have internet connection established."""+bcolors.ENDC+"""\n\n """)
-		print("""\n\t"""+bcolors.GREEN+"""\t\t
-		Exit program by pressing 'e' """+bcolors.ENDC+"""\n\t\t
-		Force updater planting again by pressing 'f'\n"""+bcolors.YELLOW+"""\t\t\t
-		Go back by pressing 'b'"""+bcolors.ENDC+"""\n\n""")
-		selection=str(raw_input(""))
-		if selection=='e':
-			sys.exit()
-		if selection=='b':
-			featuresMenu()
-		if selection=='f':
-			addUpdater()
-		else :
-			selfUpdater()
-	else:
-		addUpdater()
-		sleep(0.1)
-		os.system("echo 'updater marker' | tee -a ~/.ota_markers/.updater_self >/dev/null")
 		clearTheScreen()
 		logoTop()
-		print("""\n\n """+bcolors.BOLD+"""
-	If you want to update this program and download new firmware, \n
-	prepared for Arduino nodes - so you can next flash them  \n\t\t
-	- you have to reboot the Raspberry. Next step is to type  \n\t\t
-	'updateupdater' or 'uu' in the terminal window.\n\t\t
-	Next time you won't have to reboot before updating.\n\n\t\t
-	Version of the updater is related to """+bcolors.BLUE+"""nodes firmware API number"""+bcolors.ENDC+bcolors.BOLD+""",\n\t\t
-	so you allways know what firmware version updater contains.\n\t\t
-	For example 2.2.5c contains nodes firmware with API 22 etc.\n\t\t
+		print("""\n
+	Permissions required so 'zip' and 'unzip' program can be downloaded.
+	Performed only during first instance of entering this sub-menu\n""")
+		sleep(2)
+		os.system("sudo echo")
+		os.system("sudo apt install zip unzip")
+		os.system("""echo 'alias updateupdater=\"cd ~ && cp ~/RH-ota/self.py ~/.ota_markers/self.py && python ~/.ota_markers/self.py \"  # part of self updater' | tee -a ~/.bashrc >/dev/null""")
+		os.system("""echo 'alias uu=\"cd ~ && cp ~/RH-ota/self.py ~/.ota_markers/self.py && python ~/.ota_markers/self.py \"  # part of self updater' | tee -a ~/.bashrc >/dev/null""")
+		os.system("echo 'updater marker' | tee -a ~/.ota_markers/.updater_self >/dev/null")
+	if not os.path.exists("/home/"+user+"/.ota_markers/.updater_self") == True:
+		addUpdater()
+	clearTheScreen()
+	logoTop()
+	print(bcolors.BOLD+"""
+	If you want to update this program and download new firmware, 
+	prepared for Arduino nodes - so you can next flash them 
+	- you can just hit 'u' now. You can also type 'updateupdater'
+	or 'uu' in the terminal window.\n
+	Version of the updater is related to """+bcolors.BLUE+"""nodes firmware API number"""+bcolors.ENDC+bcolors.BOLD+""",
+	so you allways know what firmware version updater contains.
+	For example "2.2.5c" contains nodes firmware with "API level 22".
 	Be sure that you have internet connection established."""+bcolors.ENDC+"""\n""")
-		print("""\n\t\t\t"""+bcolors.GREEN+"""\t
-		Reboot by pressing 'r' """+bcolors.ENDC+"""\n\t\t\t\t"""+bcolors.YELLOW+"""\t
-		Go back by pressing 'b'"""+bcolors.ENDC+"""\n\n""")
-		selection=str(raw_input(""))
-		if selection=='r':
-			os.system("sudo reboot")
-		if selection=='b':
-			featuresMenu()
-		else :
-			selfUpdater()
+	print(bcolors.GREEN+"""
+		Update now by pressing 'u'"""+bcolors.ENDC+"""\n""")
+#		Exit program by pressing 'e' \n
+#		Force updater planting again by pressing 'f'\n"""+bcolors.YELLOW+"""
+	print(bcolors.YELLOW+"""\t\tGo back by pressing 'b'"""+bcolors.ENDC+"""\n\n""")
+	selection=str(raw_input(""))
+#	if selection=='e':
+#		sys.exit()
+	if selection=='b':
+		featuresMenu()
+	if selection=='u':
+			#os.chdir("/home/"+user)
+			#os.system("cp ~/RH-ota/open_scripts.sh ~/.ota_markers/open_scripts.sh")
+			#os.system(". ~/.ota_markers/open_scripts.sh; updater_from_ota")
+		os.system(". ./open_scripts.sh; updater_from_ota")
+#	if selection=='f':
+#		addUpdater()
+	else :
+		selfUpdater()
+#	else:
+#		addUpdater()
+#		sleep(0.1)
+#		os.system("echo 'updater marker' | tee -a ~/.ota_markers/.updater_self >/dev/null")
+#		clearTheScreen()
+#		logoTop()
+#		print(bcolors.BOLD+"""
+#	If you want to update this program and download new firmware,
+#	prepared for Arduino nodes - so you can next flash them
+#	- you have to reboot the Raspberry. Next step is to type
+#	'updateupdater' or 'uu' in the terminal window.
+#	"""+bcolors.UNDERLINE+"""Next time you won't have to reboot before updating."""+bcolors.ENDC+"""\n
+#	Version of the updater is related to """+bcolors.BLUE+"""nodes firmware API number"""+bcolors.ENDC+bcolors.BOLD+""",
+#	so you allways know what firmware version updater contains.
+#	For example 2.2.5c contains nodes firmware with API 22 etc.
+#	Be sure that you have internet connection established."""+bcolors.ENDC)
+#		print(bcolors.GREEN+"""\n
+#		Reboot by pressing 'r' """+bcolors.ENDC+"""\n\t\t\t\t"""+bcolors.YELLOW+"""
+#		Go back by pressing 'b'"""+bcolors.ENDC+"""\n\n""")
+#		selection=str(raw_input(""))
+#		if selection=='r':
+#			os.system("sudo reboot")
+#		if selection=='b':
+#			featuresMenu()
+#		else :
+#			selfUpdater()
 
 def featuresMenu():
 	clearTheScreen()
@@ -274,7 +290,7 @@ def featuresMenu():
 def firstTime():
 	def UpdateNotes():
 		clearTheScreen()
-		os.system("less ./update-notes.md")
+		os.system("less ./docs/update-notes.txt")
 		#with open('./update-notes.txt', 'rt') as f:
 		#	for line in f:
 		#		print line.replace('\n', '').replace('####', '')
@@ -330,8 +346,8 @@ def firstTime():
 def end():
 		clearTheScreen()
 		print("\n\n")
-		image()
-		print("\t\t\t\t   Happy flyin'!\n")
+		ota_image()
+		print("\t\t\t\t   "+bcolors.BOLD+"Happy flyin'!"+bcolors.ENDC+"\n")
 		sleep(1.3)
 		clearTheScreen()
 		sys.exit()
@@ -355,7 +371,7 @@ def mainMenu():
 			# break
 		# else:
 			# print("too big fingers :( wrong command. focus and try again!")
-	selection=str(raw_input(""))
+	selection=str(raw_input())
 	if selection=='1':
 		os.system("python ./rpi_update.py")   ### opens raspberry updating file
 	if selection=='2':
