@@ -1,4 +1,4 @@
-updater-config.json
+/updater-config.json
 *.pyc
 .travis.yml
 /how_to
@@ -6,3 +6,5 @@ index.html
 .wizarded*
 RH-ota
 nohup*
+/log_data
+/.dev/*_log.txt

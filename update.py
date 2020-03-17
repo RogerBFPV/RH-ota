@@ -3,15 +3,16 @@ import os
 import platform
 import sys
 import json
-from modules import clearTheScreen, bcolors, logoTop, image, check_if_string_in_file, ota_image
+from modules import clear_the_screen, bcolors, logo_top, image_show, check_if_string_in_file, ota_image
+from ConfigParser import ConfigParser
 
-updater_version = '2.2.9g'  ### version of THIS program - has nothing to do with the RH version
+parser = ConfigParser()
+
+updater_version = '2.2.9m'  ### version of THIS program - has nothing to do with the RH version
                             ### it reffers to the API level of newest contained nodes firmware 
                             ### third number reffers to actual verion of the updater itself
 
 homedir = os.path.expanduser('~')
-
-#rldals = subprocess.Popen(["/bin/bash", "-i", "-c", "source ~/.bashrc"])
 
 if os.path.exists("./updater-config.json") == True:
 	with open('updater-config.json') as config_file:
@@ -41,7 +42,7 @@ if linux_testing == True:
 else:
 	user = data['pi_user']
 
-def configCheck():
+def config_check():
 	if os.path.exists("./updater-config.json") == False:
 		print("""\n\t\tLooks that you haven't set up config file yet.
 		Please read about configuration process - point 5
@@ -50,20 +51,77 @@ def configCheck():
 def compatibility():               ### adds compatibility and fixes with previous versions
 	os.system("python ./prev_comp.py")
 
-#		if check_if_string_in_file(homedir+'/.bashrc', 'rld'):
-#			rldals.communicate()
+if not os.path.exists(homedir+"/.ota_markers/ota_config.txt"):
+	os.system("cp "+homedir+"/RH-ota/resources/ota_config.txt "+homedir+"/.ota_markers/ota_config.txt")
+
+
+def parser_write():
+	with open('/home/'+user+'/.ota_markers/ota_config.txt', 'wb') as configfile:
+		parser.write(configfile)
+
+def log_send():
+	selection = str(raw_input("\n\n\tDo you want to send a log file for a review to the developer? [y/n] "))
+	if selection=='y' or selection =='yes':
+		if parser.getint('added_functions','curl_installed') == 0:
+			if not os.system("sudo apt install curl"):
+				parser.set('added_functions','curl_installed','1')
+				parser_write()
+		log_name = str(raw_input("\n\tPlease enter your name so we know who sent a log file: "))
+		print("\n\tPlease wait, file is being uploaded...\n")
+		os.system("rm ./log_data/log_code.txt > /dev/null 2>&1")
+		os.system("curl --upload-file ./log_data/log.txt https://transfer.sh/"+log_name+"_log.txt > ./log_data/log_code.txt")
+		os.system("sed -i 's/https:\/\/transfer.sh\///g' ./log_data/log_code.txt")
+		os.system("sed -i 's/\/"+log_name+"_log.txt//g' ./log_data/log_code.txt")
+		print("\n\n___________________________\n") 
+		print("\nTell your favourite developer those:\n")
+		print("User name: "+log_name)
+		f = open("./log_data/log_code.txt","r")
+		for line in f:
+			code = line
+		print("\nUser code: "+code)
+		print("\n___________________________\n") 
+		raw_input("\n\nHit 'enter' to continue\n\n")
+		main_menu()
+	if selection=='n' or selection =='no':
+		print("\n\n\tOK - you log file is stored under 'log.txt' name in RH-ota directory.")
+		raw_input("\n\n\tHit 'Enter' to continue\n\n")
+		main_menu()
+	else:
+		log_send()
+
+def updated_check():
+	if os.path.exists("/home/"+user+"/.ota_markers/.was_updated"):
+		clear_the_screen()
+		logo_top()
+		print("""\n\n"""+bcolors.BOLD+"""
+		Software was updated recently to the new version.\n
+		You can read update notes now or check them later.
+		\n\n\n"""+bcolors.ENDC+bcolors.GREEN+"""
+		'r' - read update notes"""+bcolors.ENDC+"""\n
+		's' - skip and don't show again
+		\n""")
+		selection = str(raw_input())
+		if selection == 'r':
+			os.system("less ./docs/update-notes.txt")
+		if selection == 's':
+			pass
+		else:
+			updated_check()
+		os.system("rm /home/"+user+"/.ota_markers/.was_updated >/dev/null 2>&1")
 
 def first ():
 	compatibility()
-	clearTheScreen()
+	parser.read('/home/'+user+'/.ota_markers/ota_config.txt')
+	clear_the_screen()
 	print("\n\n")
-	image()
+	image_show()
 	print("\t\t\t\t "+bcolors.BOLD+"Updater version: "+str(updater_version)+bcolors.ENDC)
-	sleep(1.1)
+	sleep(1)
+	updated_check()
 
-def avrDude():
-	clearTheScreen()
-	logoTop()
+def avr_dude():
+	clear_the_screen()
+	logo_top()
 	print("\n\n\n\t\t\t\t"+bcolors.RED+"AVRDUDE MENU"+bcolors.ENDC+"\n")
 	print ("\t\t\t "+bcolors.BLUE+"1 - Install avrdude"+bcolors.ENDC)
 	print ("\t\t\t "+bcolors.YELLOW+"2 - Go back"+bcolors.ENDC)
@@ -71,19 +129,21 @@ def avrDude():
 	if selection=='1' : 
 		os.system("sudo apt-get update")
 		os.system("sudo apt-get install avrdude -y")
-		print "\nDone\n"
+		print ("\nDone\n")
 	if selection=='2' : 
-		mainMenu()
+		main_menu()
 	else:
-		avrDude()
+		avr_dude()
 
-def serialMenu():
-	clearTheScreen()
-	logoTop()
-	def serialContent():
-		os.system("echo 'functionality added' | tee -a ~/.ota_markers/.serialok")
+def serial_menu():
+	clear_the_screen()
+	logo_top()
+	def serial_content():
 		os.system("echo 'enable_uart=1'| sudo tee -a /boot/config.txt")
 		os.system("sudo sed -i 's/console=serial0,115200//g' /boot/cmdline.txt")
+		#os.system("echo 'functionality added' | tee -a ~/.ota_markers/.serialok")
+		parser.set('added_functions','serial_added','1')
+		parser_write()
 		print("""\n\n\t\tSerial port enabled successfully\n\t\t\t\t
 		You have to reboot Raspberry now. Ok?\n\t\t\t\t\t
 		'r' - Reboot now\t"""
@@ -92,59 +152,42 @@ def serialMenu():
 		if selection=='r':
 			os.system("sudo reboot")
 		if selection== 'b':
-			featuresMenu()
+			features_menu()
 	print("""\n\n\t\t
 		Serial port has to be enabled. 
 		Without it Arduinos cannot be programmed.\n\t\t
 		Do you want to enable it now?""")
 	selection=str(raw_input("\n\t\t\t"+bcolors.YELLOW+"Press 'y' for yes or 'a' for abort"+bcolors.ENDC+"\n"))
 	if selection == 'y':
-		if os.path.exists("/home/"+user+"/.ota_markers/.serialok") == True:
+		#if os.path.exists("/home/"+user+"/.ota_markers/.serialok") == True:
+		if parser.getint('added_functions','serial_added') == 1:
 			print("\n\n\t\tLooks like you already enabled Serial port. \n\t\tDo you want to continue anyway?\n")
 			selection=str(raw_input("\t\t\t"+bcolors.YELLOW+"Press 'y' for yes or 'a' for abort"+bcolors.ENDC+"\n"))
 			if selection=='y':
-				serialContent()
+				serial_content()
 			if selection =='a':
-				featuresMenu()
+				features_menu()
 			else:
-				serialMenu()
+				serial_menu()
 		else:
-			serialContent()
+			serial_content()
 	if selection == 'a':
-		featuresMenu()
+		features_menu()
 	else:
-		serialMenu()
+		serial_menu()
 
-def aliasesMenu():
-	clearTheScreen()
-	def aliasesContent():
-		os.system("echo '' | tee -a ~/.bashrc")
-		os.system("echo '### Shortcuts that can be used in terminal window ###' | tee -a ~/.bashrc")
-		os.system("echo '' | tee -a ~/.bashrc")
-		os.system("echo 'alias ss=\"cd ~/RotorHazard/src/server && python server.py\"   #  starts the RH-server' | tee -a ~/.bashrc")
-		os.system("echo 'alias cfg=\"nano ~/RotorHazard/src/server/config.json\"   #  opens config.json file' | tee -a ~/.bashrc")
-		os.system("echo 'alias rh=\"cd ~/RotorHazard/src/server\"   # goes to server file location' | tee -a ~/.bashrc")
-		os.system("echo 'alias py=\"python\"  # pure laziness' | tee -a ~/.bashrc")
-		os.system("echo 'alias sts=\"sudo systemctl stop rotorhazard\" # stops RH service' | tee -a ~/.bashrc")
-		os.system("echo 'alias otadir=\"cd ~/RH-ota\"   # goes to server file location' | tee -a ~/.bashrc")
-		os.system("echo 'alias ota=\"cd ~/RH-ota && python update.py\"  # opens updating soft' | tee -a ~/.bashrc")
-		os.system("echo 'alias als=\"nano ~/.bashrc\"   #  opens this file' | tee -a ~/.bashrc")
-		os.system("echo 'alias rld=\"source ~/.bashrc\"   #  reloads aliases file' | tee -a ~/.bashrc")
-		os.system("echo 'alias rcfg=\"sudo raspi-config\"   #  open raspberrys configs' | tee -a ~/.bashrc")
-		os.system("echo 'alias gitota=\"git clone https://github.com/szafranski/RH-ota.git\"   #  clones ota repo' | tee -a ~/.bashrc")
-		os.system("echo 'alias gitotassh=\"git clone git@github.com:szafranski/RH-ota.git && cd ~/RH-ota\"   #  clones ota repo - ssh")
-		os.system("echo 'alias otacfg=\"nano ~/RH-ota/updater-config.json \"  # opens updater conf. file' | tee -a ~/.bashrc")
-		os.system("echo 'alias otacpcfg=\"cd ~/RH-ota && cp distr-updater-config.json updater-config.json \"  # copies ota conf. file' | tee -a ~/.bashrc")
-		os.system("echo 'alias home=\"cd ~ \"  # go homedir (without ~ sign)' | tee -a ~/.bashrc")
-		os.system("echo '' | tee -a ~/.bashrc")
-		os.system("echo '# After adding or changing aliases manually - reboot raspberry or type \"source ~/.bashrc\".' | tee -a ~/.bashrc")
-		os.system("echo 'functionality added - leave file here' | tee -a ~/.ota_markers/.aliases_added >/dev/null")
-		os.system("echo 'functionality added - leave file here' | tee -a ~/.ota_markers/.aliases2_added >/dev/null")
+def aliases_menu():
+	clear_the_screen()
+	def aliases_content():
+		os.system("cat ./resources/aliases.txt | tee -a ~/.bashrc")
+		#os.system("echo 'functionality added - leave file here' | tee -a ~/.ota_markers/.aliases_added >/dev/null")
+		parser.set('added_functions','aliases_1','1')
+		#os.system("echo 'functionality added - leave file here' | tee -a ~/.ota_markers/.aliases2_added >/dev/null")
+		parser.set('added_functions','aliases_2','1')
+		parser_write()
 		print("\n\n\t\t	Aliases added successfully")
-		#os.system(". ~/.bashrc && alias*")
-		#os.system("cd /home/"+user+"/RH-ota && . ./open_scripts.sh; aliases_reload")
 		sleep(3)
-		featuresMenu()
+		features_menu()
 	print("""\n\n\t\t
 	Aliases in Linux act like shortcuts or referances to another commands. 
 	You can use them every time when you operates in the terminal window. 
@@ -153,141 +196,142 @@ def aliasesMenu():
 	anytime you want. You just have to open '~./bashrc' file in text editor 
 	- like 'nano'. After that you have reboot or type 'source ~/.bashrc'. \n
 	"""+bcolors.BOLD+"""
-				Alias			What it does	\n
-				ss  	 -->	starts the RotorHazard server
-				cfg  	 -->	opens RH config.json file
-				rh   	 -->	goes to server file directory
-				py   	 -->	insted of 'python' - pure laziness
-				sts   	 -->	stops RH service if was started
-				otadir   -->	goes to RH server file directory
-				ota   	 -->	opens this software
-				als   	 -->	opens the file that containes aliases
-				rld   	 -->	reloads aliases file 
-				rcfg   	 -->	opens raspberry's configuration 
-				gitota 	 -->	clones OTA repository
-				otacfg   -->	opens updater conf. file
-				otacpcfg -->	copies ota conf. file.
-				home	 -->	go to the home directory (without ~ sign)\n
+		Alias			What it does	\n
+		ss  	 -->	starts the RotorHazard server
+		cfg  	 -->	opens RH config.json file
+		rh   	 -->	goes to server file directory
+		py   	 -->	insted of 'python' - pure laziness
+		sts   	 -->	stops RH service if was started
+		otadir   -->	goes to RH server file directory
+		ota   	 -->	opens this software
+		als   	 -->	opens the file that containes aliases
+		rld   	 -->	reloads aliases file 
+		rcfg   	 -->	opens raspberry's configuration 
+		gitota 	 -->	clones OTA repository
+		otacfg   -->	opens updater conf. file
+		otacpcfg -->	copies ota conf. file.
+		home	 -->	go to the home directory (without '~' sign)\n
 	"""+bcolors.ENDC+"""
-		\tDo you want to use above aliases in your system?\n
-		\tReboot should be performed after adding those""")
-	selection=str(raw_input("\n\t\t\t\t"+bcolors.YELLOW+"Press 'y' for yes or 'a' for abort"+bcolors.ENDC+"\n"))
+		Do you want to use above aliases in your system?\n
+		Reboot should be performed after adding those""")
+	selection=str(raw_input("\n\t\t\t"+bcolors.YELLOW+"Press 'y' for yes or 'a' for abort"+bcolors.ENDC+"\n"))
 	if selection == 'y':
-		if os.path.exists("/home/"+user+"/.ota_markers/.aliases_added") == True:
-			print("\n\n\t\tLooks like you already have aliases added. Do you want to continue anyway?\n")
-			selection=str(raw_input("\t\t\t\t"+bcolors.YELLOW+"Press 'y' for yes or 'a' for abort"+bcolors.ENDC+"\n"))
+		#if os.path.exists("/home/"+user+"/.ota_markers/.aliases_added") == True:
+		if parser.getint('added_functions','aliases_1') == 1:
+			print("\n\n\t\tLooks like you already have aliases added. \n\t\tDo you want to continue anyway?\n")
+			selection=str(raw_input("\t\t\t"+bcolors.YELLOW+"Press 'y' for yes or 'a' for abort"+bcolors.ENDC+"\n"))
 			if selection=='y':
-				aliasesContent()
+				aliases_content()
 			if selection =='a':
-				featuresMenu()
+				features_menu()
 			else:
-				aliasesMenu()
+				aliases_menu()
 		else:
-			aliasesContent()
+			aliases_content()
 	if selection == 'a':
-		featuresMenu()
+		features_menu()
 	else:
-		aliasesMenu()
+		aliases_menu()
 
-def selfUpdater():
-	def addUpdater():
-		print("\nPermissions required so 'zip' and 'unzip' program can be downloaded.")
-		os.system("sudo apt install zip unzip")
+def self_updater():
+	def add_updater():
+		clear_the_screen()
+		logo_top()
+		print("""\n
+	Permissions required so 'zip' and 'unzip' program can be downloaded.
+	Performed only during first instance of entering this sub-menu\n""")
 		sleep(2)
-		os.system("""echo 'alias updateupdater=\"cd ~ && cp ~/RH-ota/self.py ~/.ota_markers/self.py && python ~/.ota_markers/self.py \"  # part of self updater' | tee -a ~/.bashrc""")
-		os.system("""echo 'alias uu=\"cd ~ && cp ~/RH-ota/self.py ~/.ota_markers/self.py && python ~/.ota_markers/self.py \"  # part of self updater' | tee -a ~/.bashrc""")
-	clearTheScreen()
-	logoTop()
-	if os.path.exists("/home/"+user+"/.ota_markers/.updater_self") == True:
-		print(bcolors.BOLD+"""
+		os.system("sudo echo")
+		os.system("sudo apt install zip unzip")
+		os.system("""echo 'alias updateupdater=\"cd ~ && cp ~/RH-ota/self.py ~/.ota_markers/self.py && python ~/.ota_markers/self.py \"  # part of self updater' | tee -a ~/.bashrc >/dev/null""")
+		os.system("""echo 'alias uu=\"cd ~ && cp ~/RH-ota/self.py ~/.ota_markers/self.py && python ~/.ota_markers/self.py \"  # part of self updater' | tee -a ~/.bashrc >/dev/null""")
+		#os.system("echo 'updater marker' | tee -a ~/.ota_markers/.updater_self >/dev/null")
+		parser.set('added_functions','updater_planted','1')
+		parser_write()
+	#if not os.path.exists("/home/"+user+"/.ota_markers/.updater_self") == True:
+	if parser.getint('added_functions','updater_planted') == 0:
+		add_updater()
+	clear_the_screen()
+	logo_top()
+	print(bcolors.BOLD+"""
 	If you want to update this program and download new firmware, 
 	prepared for Arduino nodes - so you can next flash them 
-	- you have to type 'updateupdater' or 'uu' in the terminal window.\n
+	- you can just hit 'u' now. You can also type 'updateupdater'
+	or 'uu' in the terminal window.\n
 	Version of the updater is related to """+bcolors.BLUE+"""nodes firmware API number"""+bcolors.ENDC+bcolors.BOLD+""",
 	so you allways know what firmware version updater contains.
-	For example "2.2.5c" contains nodes firmware with "API level 22" etc.
-	Be sure that you have internet connection established."""+bcolors.ENDC+"""\n""")
-		print(bcolors.GREEN+"""\n
-		Exit program by pressing 'e' """+bcolors.ENDC+"""\n
-		Force updater planting again by pressing 'f'\n"""+bcolors.YELLOW+"""
-		Go back by pressing 'b'"""+bcolors.ENDC+"""\n\n""")
-		selection=str(raw_input(""))
-		if selection=='e':
-			sys.exit()
-		if selection=='b':
-			featuresMenu()
-		if selection=='uu':
-			os.system("cp ~/RH-ota/open_scripts.sh ~/.ota_markers/open_scripts.sh")
-			os.system(". ~/.ota_markers/open_scripts.sh; updater_from_ota")
-		if selection=='f':
-			addUpdater()
-		else :
-			selfUpdater()
-	else:
-		addUpdater()
-		sleep(0.1)
-		os.system("echo 'updater marker' | tee -a ~/.ota_markers/.updater_self >/dev/null")
-		clearTheScreen()
-		logoTop()
-		print(bcolors.BOLD+"""
-	If you want to update this program and download new firmware,
-	prepared for Arduino nodes - so you can next flash them
-	- you have to reboot the Raspberry. Next step is to type
-	'updateupdater' or 'uu' in the terminal window.
-	"""+bcolors.UNDERLINE+"""Next time you won't have to reboot before updating."""+bcolors.ENDC+"""\n
-	Version of the updater is related to """+bcolors.BLUE+"""nodes firmware API number"""+bcolors.ENDC+bcolors.BOLD+""",
-	so you allways know what firmware version updater contains.
-	For example 2.2.5c contains nodes firmware with API 22 etc.
-	Be sure that you have internet connection established."""+bcolors.ENDC)
-		print(bcolors.GREEN+"""\n
-		Reboot by pressing 'r' """+bcolors.ENDC+"""\n\t\t\t\t"""+bcolors.YELLOW+"""
-		Go back by pressing 'b'"""+bcolors.ENDC+"""\n\n""")
-		selection=str(raw_input(""))
-		if selection=='r':
-			os.system("sudo reboot")
-		if selection=='b':
-			featuresMenu()
-		else :
-			selfUpdater()
+	For example "2.2.5c" contains nodes firmware with "API level 22".
+	Self-updater will test your internet connection during every update."""+bcolors.ENDC+"""\n""")
+	print(bcolors.GREEN+"""
+		Update now by pressing 'u'"""+bcolors.ENDC+"""\n""")
+	print(bcolors.YELLOW+"""\t\tGo back by pressing 'b'"""+bcolors.ENDC+"""\n\n""")
+	selection=str(raw_input(""))
+	if selection=='b':
+		features_menu()
+	if selection=='u':
+		os.system(". ./open_scripts.sh; updater_from_ota")
+	else :
+		self_updater()
 
-def featuresMenu():
-	clearTheScreen()
-	logoTop()
+def features_menu():
+	clear_the_screen()
+	logo_top()
 	print("\n\n\t\t\t\t"+bcolors.RED+bcolors.BOLD+bcolors.UNDERLINE+"FEATURES MENU"+bcolors.ENDC+"\n")
-	print("			"+bcolors.BLUE+bcolors.BOLD+"1 - Install avrdude\n"+bcolors.ENDC)
+	print("			"+bcolors.BLUE+bcolors.BOLD+"1 - Install AVRDUDE\n"+bcolors.ENDC)
 	print("			"+bcolors.BLUE+bcolors.BOLD+"2 - Enable serial protocol\n"+bcolors.ENDC)
 	print("			"+bcolors.BOLD+"3 - Access Point and Internet\n"+bcolors.ENDC)
-	print("			"+bcolors.BOLD+"4 - Useful aliases\n"+bcolors.ENDC)
-	print("			"+bcolors.BOLD+"5 - Self updater \n"+bcolors.ENDC)
+	print("			"+bcolors.BOLD+"4 - Show actuall Pi's GPIO\n"+bcolors.ENDC)
+	print("			"+bcolors.BOLD+"5 - Useful aliases\n"+bcolors.ENDC)
+	print("			"+bcolors.BOLD+"6 - Update OTA software\n"+bcolors.ENDC)
 	print("			"+bcolors.YELLOW+bcolors.BOLD+"e - Exit to main menu"+bcolors.ENDC)
 	selection=str(raw_input(""))
 	if selection=='1':
-		avrDude()
+		avr_dude()
 	if selection== '2':
-		serialMenu()
+		serial_menu()
 	if selection=='3':
 		os.system("python ./net_and_ap.py")
 	if selection=='4':
-		aliasesMenu()
+		#if not os.path.exists("/home/"+user+"/.ota_markers/.pinout_added"):
+		if parser.getint('added_functions','pinout_installed') == 0:
+			print("Some additional software has to be added so action can be performed. Ok?\n[yes/no]\n")
+			while True:
+				selection = str(raw_input())
+				if selection == 'y' or selection == 'yes':
+					if not os.system("sudo apt-get install python3-gpiozero"):
+						parser.set('added_functions','pinout_installed','1')
+						parser_write()
+						break
+					else:
+						print("\nFailed to install required package.\n")
+						sleep(2)
+						break
+				if selection == 'n' or selection == 'no':
+					break
+				else:
+					continue
+		#if os.path.exists("/home/"+user+"/.ota_markers/.pinout_added"):
+		if parser.getint('added_functions','pinout_installed') == 1:
+			os.system("pinout")
+			selection = str(raw_input("\nDone? Hit 'Enter'\n"))
+		else:
+			print("\nAdditional software needed. Please re-enter this menu.\n")
+			sleep(3)
 	if selection=='5':
-		selfUpdater()
+		aliases_menu()
+	if selection=='6':
+		self_updater()
 	if selection=='e':
-		mainMenu()
+		main_menu()
 	else:
-		featuresMenu()
+		features_menu()
 
-def firstTime():
-	def UpdateNotes():
-		clearTheScreen()
+def first_time():
+	def update_notes():
+		clear_the_screen()
 		os.system("less ./docs/update-notes.txt")
-		#with open('./update-notes.txt', 'rt') as f:
-		#	for line in f:
-		#		print line.replace('\n', '').replace('####', '')
-		#selection=str(raw_input(bcolors.GREEN+"\n\t\t'k' - OK, go to Main Menu"+bcolors.ENDC))
-		#if selection=='k':
-		#	mainMenu()
-	def secondPage():
-		clearTheScreen()
+	def second_page():
+		clear_the_screen()
 		print("""\n\n
 		"""+bcolors.BOLD+bcolors.UNDERLINE+"""\t\tCONFIGURATION PROCESS"""+bcolors.ENDC+"""\n\n
 	"""+bcolors.BOLD+"""Software configuration process can be assisted with a wizard. 
@@ -302,49 +346,52 @@ def firstTime():
 		print("\n\n\t'f' - first page'"+bcolors.GREEN+"\t'u' - update notes'"+bcolors.ENDC+bcolors.YELLOW+"\t'b' - back to menu"+bcolors.ENDC+"\n\n")
 		selection=str(raw_input(""))
 		if selection=='f':
-			firstPage()
+			first_page()
 		if selection=='b':
-			mainMenu()
+			main_menu()
 		if selection=='u':
-			UpdateNotes()
+			update_notes()
 		else :
-			secondPage()
-	def firstPage():
-		clearTheScreen()
+			second_page()
+	def first_page():
+		clear_the_screen()
 		print(bcolors.BOLD+"""\n\n
-	You can use all implemened features, but if you want to be able to program\n
-	Arduino-based nodes - enter Features menu and begin with first 2 points.\n\n
-	Also remember about setting up config file - check second page.  \n\n
-	This program has ability to perform 'self-updates'. Check "Features menu".\n\n
-	More info here: https://www.instructables.com/id/RotorHazard-Updater/\n
-	and in how_to folder - look for PDF file.\n\n 
-	If you found any bug - please report via GitHub or Facebook.\n\n
-	\t\tEnjoy!\n\t\t\t\t\t\t\t\tSzafran\n """+bcolors.ENDC)
+	You can use all implemened features, but if you want to be able to program
+	Arduino-based nodes - enter Features menu and begin with first 2 points.\n
+	Also remember about setting up config file - check second page.  \n
+	This program has ability to perform 'self-updates'. Check "Features menu".\n
+	More info about whole poject that this software is a part of: 
+	https://www.instructables.com/id/RotorHazard-Updater/
+	and in how_to folder - look for PDF file.\n
+	New features and changes - see update notes section.
+	If you found any bug - please report via GitHub or Facebook.\n
+			Enjoy!\n\t\t\t\t\t\t\t\tSzafran\n """+bcolors.ENDC)
 		print("\n\t"+bcolors.GREEN+"'s' - second page'"+bcolors.ENDC+"\t'u' - update notes'"+bcolors.YELLOW+"\t'b' - back to menu"+bcolors.ENDC+"\n\n")
 		selection=str(raw_input(""))
 		if selection=='s':
-			secondPage()
+			second_page()
 		if selection=='u':
-			UpdateNotes()
+			update_notes()
 		if selection=='b':
-			mainMenu()
+			main_menu()
 		else :
-			firstPage()
-	firstPage()
+			first_page()
+	first_page()
 
 def end():
-		clearTheScreen()
+		parser_write()
+		clear_the_screen()
 		print("\n\n")
 		ota_image()
 		print("\t\t\t\t   "+bcolors.BOLD+"Happy flyin'!"+bcolors.ENDC+"\n")
 		sleep(1.3)
-		clearTheScreen()
+		clear_the_screen()
 		sys.exit()
 
-def mainMenu():
-	clearTheScreen()
-	logoTop()
-	configCheck()
+def main_menu():
+	clear_the_screen()
+	logo_top()
+	config_check
 	print("\n\n\t\t\t\t"+bcolors.RED+bcolors.BOLD+bcolors.UNDERLINE+"MAIN MENU"+bcolors.ENDC+"\n")
 	print("			"+bcolors.BLUE+bcolors.BOLD+"1 - RotorHazard Manager\n"+bcolors.ENDC)
 	print("			"+bcolors.BLUE+bcolors.BOLD+"2 - Nodes flash and update\n"+bcolors.ENDC)
@@ -353,35 +400,32 @@ def mainMenu():
 	print("			"+bcolors.BOLD+"5 - Info + first time here\n"+bcolors.ENDC)
 	print("			"+bcolors.BOLD+"6 - Configuration wizard\n"+bcolors.ENDC)
 	print("			"+bcolors.YELLOW+bcolors.BOLD+"e - Exit"+bcolors.ENDC)
-	# valid_options = ['1', '2', '3', '4', '5', 'e']  ### another option for error catching
-	# while True:
-		# selection=raw_input().strip()
-		# if selection in valid_options:
-			# break
-		# else:
-			# print("too big fingers :( wrong command. focus and try again!")
-	selection=str(raw_input(""))
+	selection=str(raw_input())
 	if selection=='1':
 		os.system("python ./rpi_update.py")   ### opens raspberry updating file
 	if selection=='2':
 		os.system("python ./nodes_update.py")   ### opens nodes updating file
 	if selection=='3':
-		clearTheScreen()
+		clear_the_screen()
 		os.system(". ./open_scripts.sh; server_start")
-		#os.system("sh ./server_start.sh")
 	if selection=='4':
-		featuresMenu()
+		features_menu()
 	if selection=='5':
-		firstTime()
+		first_time()
 	if selection=='6':
 		os.system("python ./conf_wizard_ota.py")
+	if selection == 'logme':
+		os.system(". ./open_scripts.sh; log_me")
+		log_send()
 	if selection=='e':
 		end()
 	if selection=='2dev':
 		os.system("python ./.dev/done_nodes_update_dev.py")   ### opens nodes updating file
 	else:
-		mainMenu()
+		main_menu()
 
-if __name__ == "__main__":
-	first()
-	mainMenu()
+#if __name__ == "__main__":
+first()
+main_menu()
+
+

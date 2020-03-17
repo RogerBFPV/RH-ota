@@ -4,6 +4,7 @@ import platform
 import sys
 import json
 import time
+
 #from rpi_update import internetCheck
 
 # import subprocess
@@ -29,7 +30,7 @@ if linux_testing == True:
 else:
 	user = data['pi_user']
 
-def clearTheScreen():
+def clear_the_screen():
 	sleep(0.05)
 	if platform.system() == "Windows":
 		os.system("cls")
@@ -39,7 +40,25 @@ def clearTheScreen():
 		print("\n" * 200)
 	sleep(0.05)
 
-def image():
+def dots2sec():
+	for i in range (30):
+		sys.stdout.write(".")
+		sys.stdout.flush()
+		sleep(0.0666)
+	sys.stdout.write("\n")
+
+def percent_count():
+	def backspace(n):
+		sys.stdout.write((b'\x08' * n).decode()) # use \x08 char to go back   
+
+	for i in range(101):                        # for 0 to 100
+		s = str(i) + '%'                        # string for output
+		sys.stdout.write(s)                     # just print
+		sys.stdout.flush()                      # needed for flush when using \x08
+		backspace(len(s))                       # back n chars    
+		time.sleep(0.05)        
+
+def image_show():
 	with open('./resources/image.txt', 'r') as file:
 		f = file.read()
 		print(f)
@@ -56,7 +75,7 @@ def check_if_string_in_file(file_name, string_to_search):
 				return True
 	return False
 
-def logoTop():
+def logo_top():
 	print("""\n	
 	#######################################################################
 	###                                                                 ###
@@ -80,27 +99,7 @@ class bcolors:
 	BOLD = '\033[1m'
 	UNDERLINE = '\033[4m'
 
-# def internetCheck():
-	# print("\nPlease wait - checking internet connection state...\n")
-	# global internet_FLAG
-	# before_millis = int(round(time.time() * 1000))
-	# os.system(". /home/"+myhomedir+"/RH-ota/open_scripts.sh; net_check")
-	# #os.system("timeout 3s sh "+myhomedir+"/RH-ota/net_check.sh > /dev/null 2>&1")
-	# while True:
-		# now_millis = int(round(time.time() * 1000))
-		# time_passed = (now_millis - before_millis)
-		# if os.path.exists("./index.html") == True:
-			# internet_FLAG=1
-			# break
-		# elif (time_passed > 3100):
-			# internet_FLAG=0
-			# break
-	# os.system("rm "+myhomedir+"/RH-ota/index.html > /dev/null 2>&1")
-	# os.system("rm "+myhomedir+"/RH-ota/wget-log* > /dev/null 2>&1")
-	# os.system("rm "+myhomedir+"/index.html > /dev/null 2>&1")
-	# os.system("rm "+myhomedir+"/wget-log* > /dev/null 2>&1")
-
-def internetCheck():
+def internet_check():
 	print("\nPlease wait - checking internet connection state...\n")
 	global internet_FLAG
 	before_millis = int(round(time.time() * 1000))
