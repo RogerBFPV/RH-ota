@@ -100,48 +100,6 @@ def new_version_check():
         new_version_name = line
 
 def main():
-<<<<<<< HEAD
-	internet_check()
-	if internet_FLAG==0:
-		print("\nLooks like you don't have internet connection. Update canceled.\n")
-		sleep(2)
-	else:
-		print("\nInternet connection - OK\n")
-		sleep(1.5)
-		os.system("sudo chmod -R 777 ~/.ota_markers > /dev/null 2>&1")   ### resolves compatibility issues
-		os.system("sudo chmod -R 777 ~/RH-ota > /dev/null 2>&1")         ### resolves compatibility issues
-		old_version_check()
-		print("\n\n\n\t Please wait: updating process from version "+old_version_name+"\n\n")
-		sleep(2)
-		if config_file_exists == True:
-			os.system("cp ~/RH-ota/updater-config.json ~/.ota_markers/updater-config.json")
-		if no_pdf_update == False:
-			print("Update will contain PDF file - may be changed in config file.\n")
-			os.system("sudo rm -rf ~/RH-ota*")
-			os.system("rm tempota.zip > /dev/null  > /dev/null 2>&1")
-			os.system("wget https://codeload.github.com/szafranski/RH-ota/zip/master -O tempota.zip")
-			os.system("unzip tempota.zip")
-			os.system("rm tempota.zip")
-			os.system("mv RH-ota-* RH-ota")
-		else:
-			print("Update won't contain PDF file - may be changed in config file.\n")
-			os.system("sudo rm -rf ~/RH-ota*")
-			os.system("rm tempota.zip > /dev/null  > /dev/null 2>&1")
-			os.system("wget https://codeload.github.com/szafranski/RH-ota/zip/no_pdf -O tempota.zip")
-			os.system("unzip tempota.zip")
-			os.system("rm tempota.zip")
-			os.system("mv RH-ota-* RH-ota")
-		if config_file_exists == True:
-			os.system("cp ~/.ota_markers/updater-config.json ~/RH-ota/updater-config.json")
-		new_version_check()
-		print("\n\n\n\t RotorHazard OTA Manager updated to version "+new_version_name+"\n\t\tYou may check update-notes.\n\n")
-		sleep(1)
-		os.system("sudo chmod -R 777 ~/.ota_markers > /dev/null 2>&1")   ### resolves compatibility issues
-		os.system("sudo chmod -R 777 ~/RH-ota > /dev/null 2>&1")         ### resolves compatibility issues
-		if new_version_name != old_version_name:
-			os.system("echo OTA was updated > ~/.ota_markers/.was_updated")
-main()
-=======
     internet_check()
     if not internet_FLAG:
         print("\nLooks like you don't have internet connection. Update canceled.\n")
@@ -182,4 +140,3 @@ main()
         if new_version_name != old_version_name:
             os.system("echo OTA was updated > ~/.ota_markers/.was_updated")
 main()
->>>>>>> master
