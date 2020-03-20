@@ -403,7 +403,7 @@ def flash_each_node():
             node_menu()
         if selection=='dev' : 
             node_one_reset()
-            os.system("sudo avrdude -v -p atmega328p -c arduino -P /dev/ttyS0 -b 57600 -U flash:w:/home/"+user+"/RH-ota/.dev/node_"+str(X)+".hex:i ")
+            os.system("sudo avrdude -v -p atmega328p -c arduino -P /dev/ttyS0 -b 57600 -U flash:w:/home/"+user+"/RH-ota/firmware/i2c/reset_no_s.hex:i ")
             print(bcolors.BOLD+"\n\t Testing firmware on Node "+str(X)+" flashed\n"+bcolors.ENDC)
             sleep(1.5)
         else:
