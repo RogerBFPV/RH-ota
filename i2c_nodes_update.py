@@ -149,7 +149,7 @@ def flash_all_nodes():
     node_eight_reset()
     flash_numbered_node()
 
-
+flash_all_nodes()
 
 
 ## testing leftovers
