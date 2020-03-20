@@ -131,7 +131,7 @@ if not linux_testing:
 
 
 def flash_all_nodes():
-    input("All nodes will be flashed. Ok? Hit 'Enter'") #  hit enter before start
+    raw_input("All nodes will be flashed. Ok? Hit 'Enter'") #  hit enter before start
     node_one_reset()
     flash_numbered_node()
     node_two_reset()
@@ -149,7 +149,7 @@ def flash_all_nodes():
     node_eight_reset()
     flash_numbered_node()
 
-
+flash_all_nodes()
 
 
 ## testing leftovers
