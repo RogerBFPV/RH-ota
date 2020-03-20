@@ -520,7 +520,7 @@ def nodes_update():
     print("\t\t "+bcolors.BOLD+"2 - Nodes will use ground-auto selection firmware\n"+ bcolors.ENDC)
     print("\t\t "+bcolors.BOLD+"3 - Flash 'Blink' on every node\n"+ bcolors.ENDC)
     print("\t\t "+bcolors.BOLD+"4 - Flash each node individually\n"+ bcolors.ENDC)
-    print("\t\t "+bcolors.BOLD+"5 - I2C programming - early beta\n"+ bcolors.ENDC)
+    print("\t\t "+bcolors.BOLD+"5 - I2C programming - beta\n"+ bcolors.ENDC)
     print("\t\t "+bcolors.BOLD+"6 - Fix GPIO pins state - obsolete\n"+ bcolors.ENDC)
     print("\t\t "+bcolors.YELLOW+bcolors.BOLD+"e - Exit to main menu\n"+ bcolors.ENDC)
     sleep(0.3)
@@ -540,7 +540,7 @@ def nodes_update():
     if selection=='4':
         flash_each_node()
     if selection=='5':
-        os.system("python ./.dev/i2c_nodes_update.py")
+        os.system("python ./i2c_nodes_update.py")
     if selection=='6':
         gpio_state()
     if selection=='e':
